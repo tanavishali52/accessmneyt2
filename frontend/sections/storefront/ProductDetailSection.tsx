@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -8,7 +8,6 @@ import {
   ShoppingCart, ChevronLeft, Minus, Plus,
   Package, Star, Share2,
 } from "lucide-react";
-import { getProductById, getRelatedProducts } from "@/lib/mockData";
 import { formatPrice } from "@/lib/utils";
 import { Badge } from "@/custom-components/ui/Badge";
 import { Button } from "@/custom-components/ui/Button";
@@ -18,6 +17,8 @@ import { Alert } from "@/custom-components/ui/Alert";
 import { ProductGrid } from "@/custom-components/product/ProductGrid";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addLocalItem, openCart } from "@/store/slices/cartSlice";
+import { useGetProductByIdQuery, useGetRelatedProductsQuery } from "@/services/productsService";
+import { useAddToCartMutation } from "@/services/cartService";
 
 export function ProductDetailSection() {
   const params = useParams();
@@ -26,18 +27,27 @@ export function ProductDetailSection() {
   const dispatch = useAppDispatch();
   const { role } = useAppSelector((s) => s.auth);
 
-  const product = getProductById(id);
-  const related = getRelatedProducts(id, 4);
+  const { data: product, isLoading, isError } = useGetProductByIdQuery(id, { skip: !id });
+  const { data: related = [] } = useGetRelatedProductsQuery({ productId: id }, { skip: !id });
+  const [addToCart, { isLoading: cartLoading }] = useAddToCartMutation();
 
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
-  if (!product) {
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError || !product) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <Heading size="xl" className="mb-3">Product not found</Heading>
         <Paragraph variant="muted" className="mb-6">This product doesn&apos;t exist or has been removed.</Paragraph>
-        <Link href="/"><Button variant="primary">Back to shop</Button></Link>
+        <Link href="/shop"><Button variant="primary">Back to shop</Button></Link>
       </div>
     );
   }
@@ -46,7 +56,7 @@ export function ProductDetailSection() {
   const isLowStock = product.stock > 0 && product.stock <= 5;
   const maxQty = Math.min(product.stock, 10);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (role === "guest") {
       dispatch(addLocalItem({
         productId: product._id,
@@ -57,9 +67,16 @@ export function ProductDetailSection() {
         stock: product.stock,
       }));
       dispatch(openCart());
-      setAdded(true);
-      setTimeout(() => setAdded(false), 3000);
+    } else {
+      try {
+        await addToCart({ productId: product._id, quantity: qty }).unwrap();
+        dispatch(openCart());
+      } catch {
+        // ignore
+      }
     }
+    setAdded(true);
+    setTimeout(() => setAdded(false), 3000);
   };
 
   return (
@@ -67,11 +84,11 @@ export function ProductDetailSection() {
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-        <Link href="/" className="hover:text-zinc-900 dark:text-zinc-50 transition-colors flex items-center gap-1">
+        <Link href="/shop" className="hover:text-zinc-900 dark:text-zinc-50 transition-colors flex items-center gap-1">
           <ChevronLeft className="h-3.5 w-3.5" /> Shop
         </Link>
         <span>/</span>
-        <Link href={`/?category=${product.category}`} className="hover:text-zinc-900 dark:text-zinc-50 transition-colors">
+        <Link href={`/shop?category=${product.category}`} className="hover:text-zinc-900 dark:text-zinc-50 transition-colors">
           {product.category}
         </Link>
         <span>/</span>
@@ -91,8 +108,15 @@ export function ProductDetailSection() {
             className="object-cover"
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
+          {product.originalPrice && (
+            <div className="absolute top-3 left-3">
+              <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+                -{Math.round((1 - product.price / product.originalPrice) * 100)}%
+              </span>
+            </div>
+          )}
           {isOutOfStock && (
-            <div className="absolute inset-0 bg-white dark:bg-zinc-900/60 flex items-center justify-center">
+            <div className="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 flex items-center justify-center">
               <Badge variant="danger" size="md">Out of stock</Badge>
             </div>
           )}
@@ -104,7 +128,7 @@ export function ProductDetailSection() {
             <Badge variant="default" size="sm" className="mb-3">{product.category}</Badge>
             <Heading as="h1" size="2xl" className="mb-2 leading-tight">{product.name}</Heading>
 
-            {/* Mock rating */}
+            {/* Rating */}
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-0.5">
                 {[1,2,3,4,5].map((s) => (
@@ -119,10 +143,10 @@ export function ProductDetailSection() {
 
           {/* Price */}
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 dark:text-zinc-50">{formatPrice(product.price)}</span>
-            {product.price > 50 && (
+            <span className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(product.price)}</span>
+            {product.originalPrice && (
               <Caption className="line-through text-zinc-400 dark:text-zinc-500">
-                {formatPrice(product.price * 1.2)}
+                {formatPrice(product.originalPrice)}
               </Caption>
             )}
           </div>
@@ -159,7 +183,7 @@ export function ProductDetailSection() {
                 <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden">
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="flex items-center justify-center h-10 w-10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:bg-zinc-800 transition-colors"
+                    className="flex items-center justify-center h-10 w-10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                     aria-label="Decrease"
                   >
                     <Minus className="h-4 w-4" />
@@ -168,7 +192,7 @@ export function ProductDetailSection() {
                   <button
                     onClick={() => setQty(Math.min(maxQty, qty + 1))}
                     disabled={qty >= maxQty}
-                    className="flex items-center justify-center h-10 w-10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:bg-zinc-800 transition-colors disabled:opacity-40"
+                    className="flex items-center justify-center h-10 w-10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors disabled:opacity-40"
                     aria-label="Increase"
                   >
                     <Plus className="h-4 w-4" />
@@ -183,9 +207,10 @@ export function ProductDetailSection() {
                   size="lg"
                   fullWidth
                   onClick={handleAddToCart}
+                  disabled={cartLoading}
                   leftIcon={<ShoppingCart className="h-5 w-5" />}
                 >
-                  {added ? "Added!" : "Add to cart"}
+                  {added ? "Added!" : cartLoading ? "Adding..." : "Add to cart"}
                 </Button>
                 <Button
                   variant="secondary"
@@ -199,12 +224,11 @@ export function ProductDetailSection() {
             </div>
           )}
 
-          {/* Meta info */}
           <Divider />
           <div className="grid grid-cols-2 gap-3 text-sm">
             {[
               { label: "Category", value: product.category },
-              { label: "SKU", value: `SKU-${product._id.padStart(5, "0")}` },
+              { label: "SKU", value: `SKU-${product._id.slice(-6).toUpperCase()}` },
               { label: "Free shipping", value: product.price >= 50 ? "Yes" : "On orders over £50" },
               { label: "Returns", value: "30-day returns" },
             ].map(({ label, value }) => (
@@ -222,7 +246,7 @@ export function ProductDetailSection() {
         <div>
           <div className="flex items-center justify-between mb-5">
             <Heading size="xl">You might also like</Heading>
-            <Link href={`/?category=${product.category}`}>
+            <Link href={`/shop?category=${product.category}`}>
               <Button variant="ghost" size="sm">View all</Button>
             </Link>
           </div>

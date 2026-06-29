@@ -1,5 +1,5 @@
 "use client";
-import { useState, useId } from "react";
+import { useState, useId, useRef } from "react";
 import Image from "next/image";
 import { Pencil, Trash2, Plus, Search, X, Package } from "lucide-react";
 import {
@@ -11,6 +11,7 @@ import {
 import { CATEGORIES } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 import type { Product } from "@/types";
+import { useAppSelector } from "@/store/hooks";
 import { AdminPageWrapper } from "@/custom-components/layout/PageWrapper";
 import { Button } from "@/custom-components/ui/Button";
 import { Badge } from "@/custom-components/ui/Badge";
@@ -95,6 +96,12 @@ export default function ProductsSection() {
   // ── Delete state ────────────────────────────────────────────────────────────
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
 
+  // ── Image upload state ──────────────────────────────────────────────────────
+  const [uploading, setUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const token = useAppSelector((s) => s.auth.token);
+
   // ── Derived ─────────────────────────────────────────────────────────────────
   const filtered = products.filter((p) => {
     const matchesSearch =
@@ -111,6 +118,7 @@ export default function ProductsSection() {
     setEditingProduct(null);
     setForm(EMPTY_FORM);
     setFormErrors({});
+    setImagePreview("");
     setModalOpen(true);
   }
 
@@ -118,8 +126,32 @@ export default function ProductsSection() {
     setEditingProduct(p);
     setForm(productToForm(p));
     setFormErrors({});
+    setImagePreview(p.imageUrl ?? "");
     setModalOpen(true);
   }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: fd,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+      setForm((prev) => ({ ...prev, imageUrl: data.url }));
+      setImagePreview(data.url);
+    } catch {
+      alert("Image upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   function closeModal() {
     setModalOpen(false);
@@ -535,22 +567,37 @@ export default function ProductsSection() {
                 )}
               </div>
 
-              {/* Image URL */}
+              {/* Product Image Upload */}
               <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor={`${formId}-imageUrl`}
-                  className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide"
-                >
-                  Image URL
+                <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide">
+                  Product Image
                 </label>
+                {imagePreview && (
+                  <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 mb-1">
+                    <img src={imagePreview} alt="preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="px-3 py-2 text-sm rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+                  >
+                    {uploading ? "Uploading…" : imagePreview ? "Change Image" : "Upload Image"}
+                  </button>
+                  {imagePreview && (
+                    <span className="text-xs text-zinc-400 truncate max-w-[180px]">
+                      {form.imageUrl.split("/").pop()}
+                    </span>
+                  )}
+                </div>
                 <input
-                  id={`${formId}-imageUrl`}
-                  name="imageUrl"
-                  type="text"
-                  value={form.imageUrl}
-                  onChange={handleFormChange}
-                  placeholder="https://…"
-                  className="h-10 px-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors"
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  className="hidden"
+                  onChange={handleImageUpload}
                 />
               </div>
             </div>
