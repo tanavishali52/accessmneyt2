@@ -324,7 +324,6 @@ function PaymentForm({
           type="button"
           variant="primary"
           size="lg"
-          fullWidth
           loading={placing}
           disabled={placing || (paymentMethod === "card" && !stripe)}
           leftIcon={<Lock className="h-4 w-4" />}
