@@ -6,7 +6,12 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function Card({ hover = false, padding = "md", className, children, ...props }: CardProps) {
-  const paddings = { none: "", sm: "p-3", md: "p-4", lg: "p-6" };
+  const paddings = {
+    none: "",
+    sm: "p-3 sm:p-3",
+    md: "p-4 sm:p-4",
+    lg: "p-4 sm:p-6",
+  };
   return (
     <div
       className={cn(
@@ -24,7 +29,10 @@ export function Card({ hover = false, padding = "md", className, children, ...pr
 
 export function CardHeader({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("flex items-center justify-between pb-3 border-b border-slate-100", className)} {...props}>
+    <div
+      className={cn("flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-100", className)}
+      {...props}
+    >
       {children}
     </div>
   );
@@ -40,7 +48,10 @@ export function CardBody({ className, children, ...props }: React.HTMLAttributes
 
 export function CardFooter({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("flex items-center justify-between pt-3 border-t border-slate-100", className)} {...props}>
+    <div
+      className={cn("flex items-center justify-between flex-wrap gap-2 pt-3 border-t border-slate-100", className)}
+      {...props}
+    >
       {children}
     </div>
   );

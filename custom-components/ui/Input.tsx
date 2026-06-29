@@ -16,9 +16,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const inputId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
 
     const sizes = {
-      sm: "h-8 text-xs px-3",
-      md: "h-9 text-sm px-3",
-      lg: "h-11 text-base px-4",
+      sm: "h-9 text-xs px-3",
+      md: "h-10 text-sm px-3",
+      lg: "h-12 text-base px-4",
     };
 
     return (
@@ -35,6 +35,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               "w-full rounded-lg border bg-white text-slate-900 placeholder:text-slate-400",
               "transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
               "disabled:cursor-not-allowed disabled:opacity-50",
+              // Prevent iOS zoom on focus
+              "text-[16px] sm:text-sm",
               error ? "border-red-400 focus:ring-red-400" : "border-slate-200",
               leftIcon && "pl-9",
               rightIcon && "pr-9",

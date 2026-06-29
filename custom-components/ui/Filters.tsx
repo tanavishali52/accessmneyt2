@@ -23,12 +23,12 @@ export function FilterSection({ title, children, defaultOpen = true }: FilterSec
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full py-2 text-left"
+        className="flex items-center justify-between w-full py-2 text-left min-h-[40px]"
       >
         <Heading size="sm" className="text-slate-700">{title}</Heading>
         {open
-          ? <ChevronUp className="h-4 w-4 text-slate-400" />
-          : <ChevronDown className="h-4 w-4 text-slate-400" />}
+          ? <ChevronUp className="h-4 w-4 text-slate-400 shrink-0" />
+          : <ChevronDown className="h-4 w-4 text-slate-400 shrink-0" />}
       </button>
       {open && <div className="mt-2 space-y-2">{children}</div>}
     </div>
@@ -61,7 +61,7 @@ export function CheckboxFilter({ options, selected, onChange }: CheckboxFilterPr
   return (
     <div className="space-y-2">
       {options.map((opt) => (
-        <div key={opt.value} className="flex items-center justify-between">
+        <div key={opt.value} className="flex items-center justify-between min-h-[36px]">
           <Checkbox
             label={opt.label}
             checked={selected.includes(opt.value)}
@@ -95,7 +95,7 @@ export function PriceRangeFilter({ min, max, value, onChange }: PriceRangeFilter
           max={value[1]}
           value={value[0]}
           onChange={(e) => onChange([Number(e.target.value), value[1]])}
-          className="w-full h-8 text-xs rounded-lg border border-slate-200 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-10 text-sm rounded-lg border border-slate-200 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Min"
         />
         <span className="text-slate-400 text-sm shrink-0">—</span>
@@ -105,7 +105,7 @@ export function PriceRangeFilter({ min, max, value, onChange }: PriceRangeFilter
           max={max}
           value={value[1]}
           onChange={(e) => onChange([value[0], Number(e.target.value)])}
-          className="w-full h-8 text-xs rounded-lg border border-slate-200 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-10 text-sm rounded-lg border border-slate-200 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Max"
         />
       </div>
@@ -127,13 +127,13 @@ interface FilterPanelProps {
 
 export function FilterPanel({ children, onClear, activeCount = 0, className }: FilterPanelProps) {
   return (
-    <div className={cn("bg-white border border-slate-200 rounded-xl p-4 space-y-4", className)}>
-      <div className="flex items-center justify-between">
+    <div className={cn("bg-white border border-slate-200 rounded-xl p-4 space-y-4 w-full", className)}>
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal className="h-4 w-4 text-slate-500" />
+          <SlidersHorizontal className="h-4 w-4 text-slate-500 shrink-0" />
           <Heading size="sm">Filters</Heading>
           {activeCount > 0 && (
-            <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-semibold">
+            <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-semibold shrink-0">
               {activeCount}
             </span>
           )}

@@ -19,16 +19,16 @@ export function Pagination({ page, totalPages, total, limit, onPageChange, class
   const to = Math.min(page * limit, total);
 
   const getPages = () => {
-    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    if (page <= 4) return [1, 2, 3, 4, 5, "...", totalPages];
-    if (page >= totalPages - 3) return [1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    if (page <= 3) return [1, 2, 3, 4, "...", totalPages];
+    if (page >= totalPages - 2) return [1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
     return [1, "...", page - 1, page, page + 1, "...", totalPages];
   };
 
   const pages = getPages();
 
   return (
-    <div className={cn("flex items-center justify-between flex-wrap gap-3", className)}>
+    <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-3 flex-wrap", className)}>
       <Paragraph size="xs" variant="muted">
         Showing {from}–{to} of {total} results
       </Paragraph>
@@ -44,26 +44,33 @@ export function Pagination({ page, totalPages, total, limit, onPageChange, class
           <ChevronLeft className="h-4 w-4" />
         </Button>
 
-        {pages.map((p, i) =>
-          p === "..." ? (
-            <span key={`dots-${i}`} className="px-2 text-slate-400">
-              <MoreHorizontal className="h-4 w-4" />
-            </span>
-          ) : (
-            <button
-              key={p}
-              onClick={() => onPageChange(p as number)}
-              className={cn(
-                "h-8 w-8 rounded-lg text-sm font-medium transition-colors",
-                page === p
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
-              )}
-            >
-              {p}
-            </button>
-          )
-        )}
+        {/* On mobile: only show current/total. On sm+: show full range */}
+        <span className="flex sm:hidden items-center px-3 text-sm text-slate-600 font-medium">
+          {page} / {totalPages}
+        </span>
+
+        <div className="hidden sm:flex items-center gap-1">
+          {pages.map((p, i) =>
+            p === "..." ? (
+              <span key={`dots-${i}`} className="px-1 text-slate-400">
+                <MoreHorizontal className="h-4 w-4" />
+              </span>
+            ) : (
+              <button
+                key={p}
+                onClick={() => onPageChange(p as number)}
+                className={cn(
+                  "h-9 w-9 rounded-lg text-sm font-medium transition-colors min-h-[36px] min-w-[36px]",
+                  page === p
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100 active:bg-slate-200"
+                )}
+              >
+                {p}
+              </button>
+            )
+          )}
+        </div>
 
         <Button
           variant="secondary"

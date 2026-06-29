@@ -7,6 +7,7 @@ export interface TableColumn<T> {
   header: string;
   width?: string;
   align?: "left" | "center" | "right";
+  hideOnMobile?: boolean;
   render?: (row: T, index: number) => React.ReactNode;
 }
 
@@ -34,16 +35,18 @@ export function Table<T>({
   if (loading) return <SkeletonTable rows={5} cols={columns.length} />;
 
   return (
-    <div className={cn("w-full overflow-x-auto border border-slate-200 rounded-xl", className)}>
-      <table className="w-full text-sm">
+    // Horizontal scroll on small screens
+    <div className={cn("w-full overflow-x-auto border border-slate-200 rounded-xl -webkit-overflow-scrolling-touch", className)}>
+      <table className="w-full text-sm min-w-[480px]">
         <thead>
           <tr className="bg-slate-50 border-b border-slate-200">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  "px-4 py-3 font-semibold text-slate-600 whitespace-nowrap",
-                  align[col.align ?? "left"]
+                  "px-3 sm:px-4 py-3 font-semibold text-slate-600 whitespace-nowrap",
+                  align[col.align ?? "left"],
+                  col.hideOnMobile && "hidden sm:table-cell"
                 )}
                 style={col.width ? { width: col.width } : undefined}
               >
@@ -65,14 +68,18 @@ export function Table<T>({
                 key={rowKey ? rowKey(row, i) : i}
                 className={cn(
                   "border-b border-slate-100 last:border-0 transition-colors",
-                  onRowClick && "cursor-pointer hover:bg-slate-50"
+                  onRowClick && "cursor-pointer hover:bg-slate-50 active:bg-slate-100"
                 )}
                 onClick={() => onRowClick?.(row)}
               >
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className={cn("px-4 py-3.5 text-slate-700", align[col.align ?? "left"])}
+                    className={cn(
+                      "px-3 sm:px-4 py-3.5 text-slate-700",
+                      align[col.align ?? "left"],
+                      col.hideOnMobile && "hidden sm:table-cell"
+                    )}
                   >
                     {col.render
                       ? col.render(row, i)

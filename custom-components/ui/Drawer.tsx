@@ -13,7 +13,7 @@ interface DrawerProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   side?: "right" | "left";
-  width?: "sm" | "md" | "lg";
+  width?: "sm" | "md" | "lg" | "full";
   className?: string;
 }
 
@@ -28,32 +28,33 @@ export function Drawer({
   className,
 }: DrawerProps) {
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  const widths = { sm: "w-72", md: "w-96", lg: "w-[480px]" };
+  // On mobile always full-width; on sm+ respect width prop
+  const widths = {
+    sm:   "w-full sm:w-72",
+    md:   "w-full sm:w-96",
+    lg:   "w-full sm:w-[480px]",
+    full: "w-full",
+  };
+
   const translate = {
     right: open ? "translate-x-0" : "translate-x-full",
-    left: open ? "translate-x-0" : "-translate-x-full",
+    left:  open ? "translate-x-0" : "-translate-x-full",
   };
   const position = { right: "right-0", left: "left-0" };
 
   return (
     <>
-      {/* Overlay */}
       <div
         className={cn(
           "fixed inset-0 z-40 bg-black/40 backdrop-blur-sm transition-opacity duration-300",
@@ -63,7 +64,6 @@ export function Drawer({
         aria-hidden="true"
       />
 
-      {/* Panel */}
       <div
         role="dialog"
         aria-modal="true"
@@ -76,20 +76,17 @@ export function Drawer({
           className
         )}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-slate-200 shrink-0">
           {title && <Heading size="md">{title}</Heading>}
           <Button variant="ghost" size="icon" onClick={onClose} className="ml-auto" aria-label="Close drawer">
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
+        <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4">{children}</div>
 
-        {/* Footer */}
         {footer && (
-          <div className="shrink-0 px-5 py-4 border-t border-slate-200">{footer}</div>
+          <div className="shrink-0 px-4 sm:px-5 py-4 border-t border-slate-200">{footer}</div>
         )}
       </div>
     </>
