@@ -13,6 +13,7 @@ import { useGetProductsQuery } from "@/services/productsService";
 import { CATEGORIES } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 import { ProductCard } from "@/custom-components/product/ProductCard";
+import { SkeletonCard } from "@/custom-components/ui/Skeleton";
 
 // ─── Quick-shop category cards ────────────────────────────────────────────────
 
@@ -65,12 +66,29 @@ const HERO_ANIMATIONS: { animate: TargetAndTransition; transition: Transition }[
 
 function CategoryCarousel({ category }: { category: string }) {
   const [page, setPage] = useState(0);
-  const { data } = useGetProductsQuery({ category, limit: 20 });
+  const { data, isLoading } = useGetProductsQuery({ category, limit: 20 });
   const products = data?.data ?? [];
   const perPage = 4;
   const maxPage = Math.max(0, Math.ceil(products.length / perPage) - 1);
   const visible = products.slice(page * perPage, page * perPage + perPage);
   const totalPages = maxPage + 1;
+
+  // Skeleton placeholder while this category's products load.
+  if (isLoading) {
+    return (
+      <section className="py-8">
+        <div className="mb-5 space-y-2">
+          <div className="h-3 w-28 rounded animate-pulse bg-zinc-200 dark:bg-zinc-700" />
+          <div className="h-7 w-40 rounded animate-pulse bg-zinc-200 dark:bg-zinc-700" />
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   if (products.length === 0) return null;
 

@@ -279,7 +279,6 @@ export default function ProductsSection() {
         </div>
 
         {/* ── Table ───────────────────────────────────────────────────────── */}
-        {isLoading && <div className="text-center py-8 text-zinc-400">Loading products...</div>}
         <div className="rounded-xl border border-zinc-200 overflow-hidden surface-glass shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -303,7 +302,22 @@ export default function ProductsSection() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-white/[0.06]">
-                {filtered.length === 0 ? (
+                {isLoading ? (
+                  Array.from({ length: 6 }).map((_, i) => (
+                    <tr key={`sk-${i}`}>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg shrink-0 animate-pulse bg-zinc-200 dark:bg-zinc-700" />
+                          <div className="h-3.5 w-40 rounded animate-pulse bg-zinc-200 dark:bg-zinc-700" />
+                        </div>
+                      </td>
+                      <td className="px-4 py-3"><div className="h-3.5 w-20 rounded animate-pulse bg-zinc-200 dark:bg-zinc-700" /></td>
+                      <td className="px-4 py-3"><div className="h-3.5 w-14 rounded animate-pulse bg-zinc-200 dark:bg-zinc-700" /></td>
+                      <td className="px-4 py-3"><div className="h-3.5 w-12 rounded animate-pulse bg-zinc-200 dark:bg-zinc-700" /></td>
+                      <td className="px-4 py-3"><div className="h-3.5 w-16 ml-auto rounded animate-pulse bg-zinc-200 dark:bg-zinc-700" /></td>
+                    </tr>
+                  ))
+                ) : filtered.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-16 text-center">
                       <div className="flex flex-col items-center gap-3 text-zinc-400 dark:text-zinc-500">

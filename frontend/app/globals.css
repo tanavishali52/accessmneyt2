@@ -36,7 +36,7 @@ body {
    viewport regardless of page length. Sections are transparent in light mode
    so this glows through everywhere. */
 body {
-  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 20%, #e0f2fe 50%, #ecfdf5 80%, #fdf4ff 100%);
+  background: linear-gradient(135deg, #ddd6fe 0%, #8d75ee 20%, #3facdf 50%, #5ea383 80%, #d681eb 100%);
   background-attachment: fixed;
 }
 

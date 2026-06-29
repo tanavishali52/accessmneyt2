@@ -5,7 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   ShoppingCart, Menu, X, LogOut, Package,
-  ChevronDown, Search as SearchIcon, Store,
+  ChevronDown, Store,
+  Laptop, Shirt, BookOpen, Home, Dumbbell, Gamepad2, Sparkles, Car,
+  LayoutGrid, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/custom-components/ui/Button";
@@ -24,11 +26,44 @@ const NAV_LINKS = [
   { label: "Sale",       href: "/sale" },
 ];
 
+type CategoryItem = { label: string; icon: LucideIcon; desc: string };
+
+// Grouped product categories shown in the hover mega-menu. Each item links to
+// the shop filtered by that category (CatalogSection reads ?category=…).
+const CATEGORY_GROUPS: { title: string; items: CategoryItem[] }[] = [
+  {
+    title: "Tech & Lifestyle",
+    items: [
+      { label: "Electronics",   icon: Laptop,   desc: "Gadgets, audio & more" },
+      { label: "Home & Garden",  icon: Home,     desc: "Living & décor" },
+      { label: "Beauty",         icon: Sparkles, desc: "Skincare & grooming" },
+    ],
+  },
+  {
+    title: "Fashion & Leisure",
+    items: [
+      { label: "Clothing",       icon: Shirt,    desc: "Everyday essentials" },
+      { label: "Sports",         icon: Dumbbell, desc: "Fitness & outdoors" },
+      { label: "Toys",           icon: Gamepad2, desc: "Play & games" },
+    ],
+  },
+  {
+    title: "More to Explore",
+    items: [
+      { label: "Books",          icon: BookOpen, desc: "Reads & bestsellers" },
+      { label: "Automotive",     icon: Car,      desc: "Car care & parts" },
+    ],
+  },
+];
+
+const categoryHref = (label: string) =>
+  `/shop?category=${encodeURIComponent(label)}`;
+
 export function Navbar() {
   const [mobileOpen,   setMobileOpen]   = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [searchOpen,   setSearchOpen]   = useState(false);
-  const [searchQuery,  setSearchQuery]  = useState("");
+  const [catOpen,      setCatOpen]      = useState(false);
+  const [mobileCatOpen, setMobileCatOpen] = useState(false);
 
   const pathname = usePathname();
   const router   = useRouter();
@@ -37,15 +72,6 @@ export function Navbar() {
   const { user, role } = useAppSelector((s) => s.auth);
   const localItems     = useAppSelector((s) => s.cart.localItems);
   const cartCount      = localItems.reduce((sum, i) => sum + i.quantity, 0);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchOpen(false);
-      setMobileOpen(false);
-    }
-  };
 
   const [logoutApi] = useLogoutApiMutation();
 
@@ -88,34 +114,97 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+
+            {/* Categories hover mega-menu */}
+            <div
+              className="relative"
+              onMouseEnter={() => setCatOpen(true)}
+              onMouseLeave={() => setCatOpen(false)}
+            >
+              <button
+                type="button"
+                aria-haspopup="true"
+                aria-expanded={catOpen}
+                onClick={() => setCatOpen((o) => !o)}
+                className={cn(
+                  "flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                  catOpen || pathname.startsWith("/shop")
+                    ? "bg-violet-50 dark:bg-violet-950 text-violet-600 dark:text-violet-400"
+                    : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                )}
+              >
+                Categories
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 transition-transform duration-200",
+                    catOpen && "rotate-180"
+                  )}
+                />
+              </button>
+
+              {catOpen && (
+                // pt-2 keeps an invisible bridge so the panel stays open
+                // while the cursor travels from the trigger to the menu.
+                <div className="absolute left-0 top-full pt-2 z-30">
+                  <div className="w-[640px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl dark:shadow-zinc-950/50 p-4 animate-scale-in origin-top-left">
+                    <div className="grid grid-cols-3 gap-x-4 gap-y-5">
+                      {CATEGORY_GROUPS.map((group) => (
+                        <div key={group.title}>
+                          <p className="px-2 mb-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                            {group.title}
+                          </p>
+                          <div className="space-y-0.5">
+                            {group.items.map((item) => {
+                              const Icon = item.icon;
+                              return (
+                                <Link
+                                  key={item.label}
+                                  href={categoryHref(item.label)}
+                                  onClick={() => setCatOpen(false)}
+                                  className="group flex items-start gap-3 rounded-xl px-2 py-2 hover:bg-violet-50 dark:hover:bg-violet-950/50 transition-colors"
+                                >
+                                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 group-hover:bg-violet-600 group-hover:text-white transition-colors">
+                                    <Icon className="h-4 w-4" />
+                                  </span>
+                                  <span className="min-w-0">
+                                    <span className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 group-hover:text-violet-600 dark:group-hover:text-violet-400">
+                                      {item.label}
+                                    </span>
+                                    <span className="block text-xs text-zinc-400 dark:text-zinc-500 truncate">
+                                      {item.desc}
+                                    </span>
+                                  </span>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                      <Link
+                        href="/shop"
+                        onClick={() => setCatOpen(false)}
+                        className="flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/50 transition-colors"
+                      >
+                        <LayoutGrid className="h-4 w-4" /> Browse all products
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </nav>
 
-          {/* Desktop search */}
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-sm mx-4 relative">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
-            <input
-              type="search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products…"
-              className="w-full h-9 pl-9 pr-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors"
-            />
-          </form>
+          {/* Spacer pushes right-side actions to the edge */}
+          <div className="flex-1" />
 
           {/* Right actions */}
           <div className="flex items-center gap-1 sm:gap-1.5">
 
             {/* Theme toggle */}
             <ThemeToggle />
-
-            {/* Mobile search toggle */}
-            <button
-              className="md:hidden flex items-center justify-center h-10 w-10 rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-              onClick={() => setSearchOpen(!searchOpen)}
-              aria-label="Toggle search"
-            >
-              <SearchIcon className="h-5 w-5" />
-            </button>
 
             {/* Cart */}
             <button
@@ -203,22 +292,6 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile search bar */}
-        {searchOpen && (
-          <div className="md:hidden pb-3 animate-slide-down">
-            <form onSubmit={handleSearch} className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
-              <input
-                autoFocus
-                type="search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products…"
-                className="w-full h-10 pl-9 pr-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 text-base focus:outline-none focus:ring-2 focus:ring-violet-500"
-              />
-            </form>
-          </div>
-        )}
       </div>
 
       {/* Mobile menu */}
@@ -240,6 +313,38 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+
+            {/* Mobile categories accordion */}
+            <button
+              type="button"
+              onClick={() => setMobileCatOpen((o) => !o)}
+              aria-expanded={mobileCatOpen}
+              className="flex w-full items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <LayoutGrid className="h-4 w-4" /> Categories
+              </span>
+              <ChevronDown
+                className={cn("h-4 w-4 transition-transform", mobileCatOpen && "rotate-180")}
+              />
+            </button>
+            {mobileCatOpen && (
+              <div className="pl-3 pb-1 animate-slide-down">
+                {CATEGORY_GROUPS.flatMap((g) => g.items).map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.label}
+                      href={categoryHref(item.label)}
+                      onClick={() => { setMobileOpen(false); setMobileCatOpen(false); }}
+                      className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-zinc-600 dark:text-zinc-400 hover:bg-violet-50 dark:hover:bg-violet-950/50 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                    >
+                      <Icon className="h-4 w-4 shrink-0" /> {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </nav>
           <Divider />
           <div className="px-4 py-3">

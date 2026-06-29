@@ -7,6 +7,7 @@ import { Tag, X } from "lucide-react";
 import { useGetProductsQuery } from "@/services/productsService";
 import { ProductCard } from "@/custom-components/product/ProductCard";
 import { EmptyState } from "@/custom-components/ui/EmptyState";
+import { SkeletonCard } from "@/custom-components/ui/Skeleton";
 
 export function SaleSection() {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -19,8 +20,13 @@ export function SaleSection() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="h-8 w-48 mb-8 rounded-lg animate-pulse bg-zinc-200 dark:bg-zinc-700" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
       </div>
     );
   }

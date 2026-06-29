@@ -40,6 +40,24 @@ export function CatalogSection() {
   const [view, setView] = useState<ViewMode>("grid");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  // Keep local filter state in sync with the URL. The useState initialisers
+  // above only run once, so navigating here from elsewhere (e.g. the navbar
+  // Categories menu → /shop?category=…) while this component is already mounted
+  // would otherwise leave the filters untouched. Treating the URL as the source
+  // of truth fixes that. This uses React's "adjust state during render when a
+  // value changes" pattern (https://react.dev/learn/you-might-not-need-an-effect),
+  // which avoids an extra render/flash and does not loop with syncUrl() since
+  // setState with identical values is a no-op.
+  const searchParamsKey = searchParams.toString();
+  const [prevParamsKey, setPrevParamsKey] = useState(searchParamsKey);
+  if (searchParamsKey !== prevParamsKey) {
+    setPrevParamsKey(searchParamsKey);
+    setSearch(searchParams.get("q") ?? "");
+    setCategories(searchParams.getAll("category"));
+    setSortBy(searchParams.get("sortBy") ?? "newest");
+    setPage(Number(searchParams.get("page") ?? 1));
+  }
+
   // Debounce search -> URL sync
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const syncUrl = useCallback(
@@ -239,7 +257,11 @@ export function CatalogSection() {
         {/* Product area */}
         <div className="flex-1 min-w-0 space-y-6">
           {isLoading || isFetching ? (
-            <div className="flex items-center justify-center py-20 text-zinc-400">Loading…</div>
+            view === "grid" ? (
+              <ProductGrid products={[]} loading />
+            ) : (
+              <ProductList products={[]} loading />
+            )
           ) : total === 0 ? (
             <EmptyState
               icon={<PackageSearch className="h-8 w-8" />}

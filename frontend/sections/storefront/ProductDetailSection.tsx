@@ -15,6 +15,7 @@ import { Heading, Paragraph, Caption } from "@/custom-components/ui/Typography";
 import { Divider } from "@/custom-components/ui/Divider";
 import { Alert } from "@/custom-components/ui/Alert";
 import { ProductGrid } from "@/custom-components/product/ProductGrid";
+import { Skeleton, SkeletonText } from "@/custom-components/ui/Skeleton";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addLocalItem, openCart } from "@/store/slices/cartSlice";
 import { useGetProductByIdQuery, useGetRelatedProductsQuery } from "@/services/productsService";
@@ -283,8 +284,24 @@ export function ProductDetailSection() {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+        <Skeleton height="14px" className="w-48 mb-6" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          {/* Image */}
+          <Skeleton className="w-full aspect-square" rounded="xl" />
+          {/* Details */}
+          <div className="space-y-5">
+            <Skeleton height="22px" className="w-24" rounded="full" />
+            <Skeleton height="32px" className="w-3/4" />
+            <Skeleton height="20px" className="w-32" />
+            <Skeleton height="40px" className="w-28" />
+            <SkeletonText lines={4} />
+            <div className="flex gap-3 pt-2">
+              <Skeleton height="48px" className="w-32" rounded="lg" />
+              <Skeleton height="48px" className="flex-1" rounded="lg" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
