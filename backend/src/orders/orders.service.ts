@@ -35,7 +35,8 @@ export class OrdersService {
       shippingAddress: dto.shippingAddress,
       total: Math.round(total * 100) / 100,
       status: 'pending',
-      paymentStatus: 'pending',
+      paymentStatus: dto.paymentIntentId ? 'paid' : 'pending',
+      ...(dto.paymentIntentId && { paymentIntentId: dto.paymentIntentId }),
     });
     return order.save();
   }

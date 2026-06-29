@@ -1,36 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Check, ChevronRight, ShoppingBag, MapPin,
   CreditCard, Lock, Package, ArrowLeft,
 } from "lucide-react";
-import { shippingSchema, paymentSchema, type ShippingFormValues, type PaymentFormValues } from "@/lib/validations";
+import { shippingSchema, type ShippingFormValues } from "@/lib/validations";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearLocalCart } from "@/store/slices/cartSlice";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/custom-components/ui/Button";
-import { RHFInput } from "@/custom-components/ui/RHF";
-import { RHFSelect } from "@/custom-components/ui/RHF";
-import { Heading, Paragraph, Caption } from "@/custom-components/ui/Typography";
+import { RHFInput, RHFSelect } from "@/custom-components/ui/RHF";
+import { Heading, Paragraph } from "@/custom-components/ui/Typography";
 import { Divider } from "@/custom-components/ui/Divider";
 import { Badge } from "@/custom-components/ui/Badge";
 import { Alert } from "@/custom-components/ui/Alert";
 import { Card } from "@/custom-components/ui/Card";
 import { useGetCartQuery, useClearCartMutation } from "@/services/cartService";
 import { useCreateOrderMutation } from "@/services/ordersService";
+import { useCreatePaymentIntentMutation } from "@/services/paymentsService";
 import type { ShippingAddress, Order, OrderItem, CartItem } from "@/types";
+
+// ─── Stripe loader (singleton) ────────────────────────────────────────────────
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 // ─── Step indicator ───────────────────────────────────────────────────────────
 
 const STEPS = [
-  { id: 1, label: "Shipping",  icon: MapPin },
-  { id: 2, label: "Payment",   icon: CreditCard },
-  { id: 3, label: "Confirm",   icon: Check },
+  { id: 1, label: "Shipping", icon: MapPin     },
+  { id: 2, label: "Payment",  icon: CreditCard },
+  { id: 3, label: "Confirm",  icon: Check      },
 ];
 
 function StepIndicator({ current }: { current: number }) {
@@ -46,8 +52,7 @@ function StepIndicator({ current }: { current: number }) {
               <div className={`h-9 w-9 rounded-full flex items-center justify-center transition-colors
                 ${done   ? "bg-green-500 text-white"
                 : active ? "bg-violet-600 text-white ring-4 ring-violet-100"
-                :          "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500"}`}
-              >
+                :          "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500"}`}>
                 {done ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
               </div>
               <span className={`text-xs font-medium hidden sm:block ${active ? "text-violet-600" : done ? "text-green-600" : "text-zinc-400 dark:text-zinc-500"}`}>
@@ -90,10 +95,14 @@ function OrderSidebar({ items, subtotal }: { items: CartItem[]; subtotal: number
       </div>
       <Divider />
       <div className="space-y-1.5 text-sm">
-        <div className="flex justify-between text-zinc-600 dark:text-zinc-400"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
+        <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
+          <span>Subtotal</span><span>{formatPrice(subtotal)}</span>
+        </div>
         <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
           <span>Shipping</span>
-          <span className={shipping === 0 ? "text-green-600 font-medium" : ""}>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
+          <span className={shipping === 0 ? "text-green-600 font-medium" : ""}>
+            {shipping === 0 ? "Free" : formatPrice(shipping)}
+          </span>
         </div>
       </div>
       <Divider />
@@ -109,30 +118,212 @@ function OrderSidebar({ items, subtotal }: { items: CartItem[]; subtotal: number
   );
 }
 
+// ─── Stripe card element styles ───────────────────────────────────────────────
+
+const CARD_ELEMENT_OPTIONS = {
+  style: {
+    base: {
+      fontSize: "15px",
+      color: "#f4f4f5",
+      fontFamily: "inherit",
+      "::placeholder": { color: "#71717a" },
+      iconColor: "#8b5cf6",
+    },
+    invalid: { color: "#ef4444", iconColor: "#ef4444" },
+  },
+};
+
+const CARD_ELEMENT_OPTIONS_LIGHT = {
+  style: {
+    base: {
+      fontSize: "15px",
+      color: "#18181b",
+      fontFamily: "inherit",
+      "::placeholder": { color: "#a1a1aa" },
+      iconColor: "#7c3aed",
+    },
+    invalid: { color: "#ef4444", iconColor: "#ef4444" },
+  },
+};
+
+// ─── Payment form (must be inside <Elements>) ─────────────────────────────────
+
+interface PaymentFormProps {
+  shipping: ShippingAddress;
+  cartItems: CartItem[];
+  subtotal: number;
+  shippingCost: number;
+  isLoggedIn: boolean;
+  user: { name: string } | null;
+  onBack: () => void;
+  onSuccess: (order: Order) => void;
+}
+
+function PaymentForm({
+  shipping, cartItems, subtotal, shippingCost, isLoggedIn, user, onBack, onSuccess,
+}: PaymentFormProps) {
+  const stripe   = useStripe();
+  const elements = useElements();
+
+  const [createPaymentIntent] = useCreatePaymentIntentMutation();
+  const [createOrder]         = useCreateOrderMutation();
+  const [clearServerCart]     = useClearCartMutation();
+  const dispatch              = useAppDispatch();
+
+  const [placing, setPlacing]       = useState(false);
+  const [cardError, setCardError]   = useState<string | null>(null);
+  const [isDark, setIsDark]         = useState(false);
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  const total = subtotal + shippingCost;
+
+  const handlePay = async () => {
+    if (!stripe || !elements) return;
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) return;
+
+    setPlacing(true);
+    setCardError(null);
+
+    try {
+      // 1. Create PaymentIntent on backend
+      const { clientSecret } = await createPaymentIntent({ amount: total, currency: "gbp" }).unwrap();
+
+      // 2. Confirm payment with Stripe
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: { name: shipping.fullName },
+        },
+      });
+
+      if (result.error) {
+        setCardError(result.error.message ?? "Payment failed. Please try again.");
+        setPlacing(false);
+        return;
+      }
+
+      // 3. Payment succeeded — place the order
+      if (isLoggedIn) {
+        const order = await createOrder({
+          items: cartItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+          shippingAddress: shipping,
+          paymentIntentId: result.paymentIntent?.id,
+        }).unwrap();
+        try { await clearServerCart().unwrap(); } catch { /* ignore */ }
+        onSuccess(order);
+      } else {
+        const mockOrder: Order = {
+          _id: `ORD-${Date.now().toString(36).toUpperCase()}`,
+          userId: "guest",
+          items: cartItems.map((i): OrderItem => ({
+            productId: i.productId,
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+            imageUrl: i.imageUrl,
+          })),
+          shippingAddress: shipping,
+          total,
+          status: "pending",
+          paymentStatus: "paid",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        dispatch(clearLocalCart());
+        onSuccess(mockOrder);
+      }
+    } catch (err: any) {
+      setCardError(err?.data?.message ?? "Something went wrong. Please try again.");
+    } finally {
+      setPlacing(false);
+    }
+  };
+
+  return (
+    <Card padding="lg">
+      <div className="flex items-center gap-2.5 mb-4">
+        <CreditCard className="h-5 w-5 text-violet-600 shrink-0" />
+        <Heading size="lg">Payment details</Heading>
+      </div>
+
+      <Alert variant="info" className="mb-5">
+        <strong>Test mode.</strong> Use card <span className="font-mono">4242 4242 4242 4242</span>, any future expiry, any CVV.
+      </Alert>
+
+      {cardError && (
+        <Alert variant="danger" className="mb-4" onClose={() => setCardError(null)}>
+          {cardError}
+        </Alert>
+      )}
+
+      {/* Stripe CardElement */}
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          Card details
+        </label>
+        <div className="px-4 py-3.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-transparent transition-all">
+          <CardElement options={isDark ? CARD_ELEMENT_OPTIONS : CARD_ELEMENT_OPTIONS_LIGHT} />
+        </div>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1.5 flex items-center gap-1">
+          <Lock className="h-3 w-3" /> Secured by Stripe — your card details are never stored on our servers
+        </p>
+      </div>
+
+      <Divider />
+
+      {/* Shipping recap */}
+      <div className="flex items-start gap-3 p-3 my-4 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
+        <MapPin className="h-4 w-4 text-zinc-400 dark:text-zinc-500 shrink-0 mt-0.5" />
+        <div className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="font-medium text-zinc-900 dark:text-zinc-50">{shipping.fullName}</p>
+          <p>{shipping.address}, {shipping.city}, {shipping.postcode}</p>
+        </div>
+        <button type="button" onClick={onBack} className="ml-auto text-xs text-violet-600 hover:underline shrink-0">
+          Edit
+        </button>
+      </div>
+
+      <div className="flex gap-3">
+        <Button type="button" variant="secondary" size="lg" onClick={onBack} leftIcon={<ArrowLeft className="h-4 w-4" />}>
+          Back
+        </Button>
+        <Button
+          type="button"
+          variant="primary"
+          size="lg"
+          fullWidth
+          loading={placing}
+          disabled={!stripe || placing}
+          leftIcon={<Lock className="h-4 w-4" />}
+          onClick={handlePay}
+        >
+          Pay {formatPrice(total)}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 // ─── Main section ─────────────────────────────────────────────────────────────
 
 export function CheckoutSection() {
-  const dispatch = useAppDispatch();
+  const dispatch   = useAppDispatch();
   const localItems = useAppSelector((s) => s.cart.localItems);
   const { user, role } = useAppSelector((s) => s.auth);
 
   const isLoggedIn = role !== "guest";
 
-  // Server cart for logged-in users
   const { data: serverCart } = useGetCartQuery(undefined, { skip: !isLoggedIn });
-  const [createOrder] = useCreateOrderMutation();
-  const [clearServerCart] = useClearCartMutation();
 
-  // Single source of truth for items
-  const cartItems: CartItem[] = isLoggedIn
-    ? (serverCart?.items ?? [])
-    : localItems;
+  const cartItems: CartItem[] = isLoggedIn ? (serverCart?.items ?? []) : localItems;
 
   const [step, setStep]               = useState(1);
   const [shipping, setShipping]       = useState<ShippingAddress | null>(null);
   const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
-  const [placing, setPlacing]         = useState(false);
-  const [orderError, setOrderError]   = useState<string | null>(null);
 
   const subtotal     = cartItems.reduce((s, i) => s + i.price * i.quantity, 0);
   const shippingCost = subtotal >= 50 ? 0 : 4.99;
@@ -140,11 +331,6 @@ export function CheckoutSection() {
   const shippingForm = useForm<ShippingFormValues>({
     resolver: zodResolver(shippingSchema),
     defaultValues: { fullName: user?.name ?? "", address: "", city: "", postcode: "", country: "GB" },
-  });
-
-  const paymentForm = useForm<PaymentFormValues>({
-    resolver: zodResolver(paymentSchema),
-    defaultValues: { cardNumber: "4242 4242 4242 4242", expiry: "12/26", cvv: "123", nameOnCard: user?.name ?? "" },
   });
 
   const COUNTRY_OPTIONS = [
@@ -176,17 +362,21 @@ export function CheckoutSection() {
         </div>
         <Heading as="h1" size="2xl" className="mb-2">Order confirmed!</Heading>
         <Paragraph variant="muted" className="mb-6">
-          Thank you{user ? `, ${user.name.split(" ")[0]}` : ""}! Your order has been placed successfully.
+          Thank you{user ? `, ${user.name.split(" ")[0]}` : ""}! Your payment was successful and your order is placed.
         </Paragraph>
 
         <Card padding="md" className="text-left mb-6 space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-zinc-500 dark:text-zinc-400">Order ID</span>
-            <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-50 text-xs break-all">{placedOrder._id}</span>
+            <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-50 text-xs break-all">#{placedOrder._id.slice(-10).toUpperCase()}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-zinc-500 dark:text-zinc-400">Status</span>
             <Badge variant="warning" dot>Pending</Badge>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-zinc-500 dark:text-zinc-400">Payment</span>
+            <Badge variant="success" dot>Paid via Stripe</Badge>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-zinc-500 dark:text-zinc-400">Total</span>
@@ -194,7 +384,9 @@ export function CheckoutSection() {
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-zinc-500 dark:text-zinc-400">Delivering to</span>
-            <span className="text-zinc-700 dark:text-zinc-300 text-right">{placedOrder.shippingAddress.address}, {placedOrder.shippingAddress.city}</span>
+            <span className="text-zinc-700 dark:text-zinc-300 text-right">
+              {placedOrder.shippingAddress.address}, {placedOrder.shippingAddress.city}
+            </span>
           </div>
         </Card>
 
@@ -216,51 +408,6 @@ export function CheckoutSection() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handlePaymentSubmit = async () => {
-    if (!shipping) return;
-    setPlacing(true);
-    setOrderError(null);
-
-    try {
-      if (isLoggedIn) {
-        // Place real order via API
-        const order = await createOrder({
-          items: cartItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
-          shippingAddress: shipping,
-        }).unwrap();
-        setPlacedOrder(order);
-      } else {
-        // Guest: mock order, clear local cart
-        await new Promise((r) => setTimeout(r, 1200));
-        const mockOrder: Order = {
-          _id: `ORD-${Date.now().toString(36).toUpperCase()}`,
-          userId: "guest",
-          items: cartItems.map((i): OrderItem => ({
-            productId: i.productId,
-            name: i.name,
-            price: i.price,
-            quantity: i.quantity,
-            imageUrl: i.imageUrl,
-          })),
-          shippingAddress: shipping,
-          total: subtotal + shippingCost,
-          status: "pending",
-          paymentStatus: "paid",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        setPlacedOrder(mockOrder);
-        dispatch(clearLocalCart());
-      }
-      setStep(3);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch {
-      setOrderError("Failed to place order. Please try again.");
-    } finally {
-      setPlacing(false);
-    }
-  };
-
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
       <StepIndicator current={step} />
@@ -277,11 +424,11 @@ export function CheckoutSection() {
                 <Heading size="lg">Shipping address</Heading>
               </div>
               <form onSubmit={shippingForm.handleSubmit(handleShippingSubmit)} className="space-y-4">
-                <RHFInput name="fullName" control={shippingForm.control} label="Full name"       placeholder="Jane Smith"   required />
-                <RHFInput name="address"  control={shippingForm.control} label="Street address"  placeholder="123 High Street" required />
+                <RHFInput name="fullName" control={shippingForm.control} label="Full name"      placeholder="Jane Smith"      required />
+                <RHFInput name="address"  control={shippingForm.control} label="Street address" placeholder="123 High Street" required />
                 <div className="grid grid-cols-2 gap-3">
-                  <RHFInput name="city"     control={shippingForm.control} label="City"     placeholder="London"    required />
-                  <RHFInput name="postcode" control={shippingForm.control} label="Postcode" placeholder="SW1A 1AA"  required />
+                  <RHFInput name="city"     control={shippingForm.control} label="City"     placeholder="London"   required />
+                  <RHFInput name="postcode" control={shippingForm.control} label="Postcode" placeholder="SW1A 1AA" required />
                 </div>
                 <RHFSelect name="country" control={shippingForm.control} label="Country" options={COUNTRY_OPTIONS} required />
                 <Button type="submit" variant="primary" size="lg" fullWidth rightIcon={<ChevronRight className="h-4 w-4" />}>
@@ -291,62 +438,20 @@ export function CheckoutSection() {
             </Card>
           )}
 
-          {/* ── Step 2: Payment ── */}
-          {step === 2 && (
-            <Card padding="lg">
-              <div className="flex items-center gap-2.5 mb-2">
-                <CreditCard className="h-5 w-5 text-violet-600 shrink-0" />
-                <Heading size="lg">Payment details</Heading>
-              </div>
-
-              <Alert variant="info" className="mb-5">
-                <strong>Test mode.</strong> Use card <span className="font-mono">4242 4242 4242 4242</span>, any future expiry, any CVV.
-              </Alert>
-
-              {orderError && (
-                <Alert variant="danger" className="mb-4" onClose={() => setOrderError(null)}>
-                  {orderError}
-                </Alert>
-              )}
-
-              <form onSubmit={paymentForm.handleSubmit(handlePaymentSubmit)} className="space-y-4">
-                <RHFInput
-                  name="cardNumber"
-                  control={paymentForm.control}
-                  label="Card number"
-                  placeholder="4242 4242 4242 4242"
-                  required
-                  leftIcon={<CreditCard className="h-4 w-4" />}
-                />
-                <div className="grid grid-cols-2 gap-3">
-                  <RHFInput name="expiry"    control={paymentForm.control} label="Expiry (MM/YY)" placeholder="12/26" required />
-                  <RHFInput name="cvv"       control={paymentForm.control} label="CVV"            placeholder="123"   required />
-                </div>
-                <RHFInput name="nameOnCard" control={paymentForm.control} label="Name on card" placeholder="Jane Smith" required />
-
-                <Divider />
-
-                {shipping && (
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
-                    <MapPin className="h-4 w-4 text-zinc-400 dark:text-zinc-500 shrink-0 mt-0.5" />
-                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
-                      <p className="font-medium text-zinc-900 dark:text-zinc-50">{shipping.fullName}</p>
-                      <p>{shipping.address}, {shipping.city}, {shipping.postcode}</p>
-                    </div>
-                    <button type="button" onClick={() => setStep(1)} className="ml-auto text-xs text-violet-600 hover:underline shrink-0">Edit</button>
-                  </div>
-                )}
-
-                <div className="flex gap-3">
-                  <Button type="button" variant="secondary" size="lg" onClick={() => setStep(1)} leftIcon={<ArrowLeft className="h-4 w-4" />}>
-                    Back
-                  </Button>
-                  <Button type="submit" variant="primary" size="lg" fullWidth loading={placing} leftIcon={<Lock className="h-4 w-4" />}>
-                    Pay {formatPrice(subtotal + shippingCost)}
-                  </Button>
-                </div>
-              </form>
-            </Card>
+          {/* ── Step 2: Payment (Stripe Elements) ── */}
+          {step === 2 && shipping && (
+            <Elements stripe={stripePromise}>
+              <PaymentForm
+                shipping={shipping}
+                cartItems={cartItems}
+                subtotal={subtotal}
+                shippingCost={shippingCost}
+                isLoggedIn={isLoggedIn}
+                user={user}
+                onBack={() => { setStep(1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                onSuccess={(order) => { setPlacedOrder(order); setStep(3); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              />
+            </Elements>
           )}
         </div>
 

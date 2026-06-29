@@ -1,0 +1,22 @@
+import { Injectable } from '@nestjs/common';
+import Stripe from 'stripe';
+
+@Injectable()
+export class PaymentsService {
+  private stripe: Stripe;
+
+  constructor() {
+    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+      apiVersion: '2025-05-28.basil',
+    });
+  }
+
+  async createPaymentIntent(amount: number, currency = 'gbp') {
+    const paymentIntent = await this.stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Stripe expects pence/cents
+      currency,
+      automatic_payment_methods: { enabled: true },
+    });
+    return { clientSecret: paymentIntent.client_secret };
+  }
+}
