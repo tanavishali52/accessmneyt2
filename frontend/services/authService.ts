@@ -5,12 +5,12 @@ export const authService = baseApi.injectEndpoints({
   endpoints: (build) => ({
     login: build.mutation<AuthResponse, LoginPayload>({
       query: (body) => ({ url: "/auth/login", method: "POST", body }),
-      invalidatesTags: ["User", "Cart"],
+      // No invalidatesTags — login already returns user+token. Triggering a
+      // getMe refetch here races with setCredentials and fires it without auth.
     }),
 
     signup: build.mutation<AuthResponse, SignupPayload>({
       query: (body) => ({ url: "/auth/signup", method: "POST", body }),
-      invalidatesTags: ["User"],
     }),
 
     getMe: build.query<User, void>({

@@ -55,7 +55,9 @@ export function LoginSection() {
       const result = await login(values).unwrap();
       dispatch(setCredentials(result));
       if (localItems.length > 0) dispatch(clearLocalCart());
-      router.push(result.user.role === "admin" ? "/admin/dashboard" : "/");
+      const destination = result.user.role === "admin" ? "/admin/dashboard" : "/";
+      router.push(destination);
+      router.refresh();
     } catch (err: unknown) {
       const error = err as { data?: { message?: string } };
       setApiError(error?.data?.message ?? "Invalid email or password. Please try again.");

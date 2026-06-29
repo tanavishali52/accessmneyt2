@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/store/hooks";
 import type { UserRole } from "@/types";
@@ -8,9 +8,7 @@ import { Spinner } from "@/custom-components/ui/Spinner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  /** Minimum role required. "user" allows user + admin. "admin" allows admin only. */
   requiredRole?: Extract<UserRole, "user" | "admin">;
-  /** Where to redirect if access is denied. Defaults to /auth/login */
   redirectTo?: string;
 }
 
@@ -21,17 +19,24 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const router = useRouter();
   const { role, isLoading } = useAppSelector((s) => s.auth);
+  // Prevent SSR + pre-hydration from redirecting before redux-persist rehydrates.
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const hasAccess =
     requiredRole === "admin" ? role === "admin" : role === "user" || role === "admin";
 
   useEffect(() => {
-    if (!isLoading && !hasAccess) {
+    if (mounted && !isLoading && !hasAccess) {
       router.replace(redirectTo);
     }
-  }, [isLoading, hasAccess, router, redirectTo]);
+  }, [mounted, isLoading, hasAccess, router, redirectTo]);
 
-  if (isLoading) {
+  // Show spinner until the client has mounted and auth state is known
+  if (!mounted || isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
         <Spinner size="lg" className="text-violet-600" />
