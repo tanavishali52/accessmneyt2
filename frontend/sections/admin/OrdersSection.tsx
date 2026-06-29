@@ -138,7 +138,7 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
             <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-2">Customer</p>
             <div className="bg-zinc-50 dark:bg-white/[0.05] rounded-xl px-4 py-3">
               <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{order.shippingAddress?.fullName ?? "—"}</p>
-              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{"User " + order.userId.slice(-6)}</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{order.userId ? "User " + order.userId.slice(-6) : "Guest"}</p>
             </div>
           </section>
 
@@ -230,7 +230,7 @@ export default function OrdersSection() {
     const matchesStatus = activeStatus === "all" || o.status === activeStatus;
     const q = search.trim().toLowerCase();
     const customerName = o.shippingAddress?.fullName ?? "";
-    const customerDisplay = "user " + o.userId.slice(-6);
+    const customerDisplay = o.userId ? "user " + o.userId.slice(-6) : "guest";
     const matchesSearch =
       !q ||
       o._id.toLowerCase().includes(q) ||
@@ -416,7 +416,7 @@ export default function OrdersSection() {
                         {order.shippingAddress?.fullName ?? "—"}
                       </p>
                       <p className="text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
-                        {"User " + order.userId.slice(-6)}
+                        {order.userId ? "User " + order.userId.slice(-6) : "Guest"}
                       </p>
                     </td>
 
