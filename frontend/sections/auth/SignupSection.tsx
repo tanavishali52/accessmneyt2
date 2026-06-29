@@ -55,7 +55,7 @@ export function SignupSection() {
   };
 
   return (
-    <div className="min-h-screen flex bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen flex bg-zinc-50 dark:bg-transparent">
 
       {/* ── Left panel ──────────────────────────────────────────────────────── */}
       <div className="hidden lg:flex lg:w-[42%] xl:w-[45%] relative overflow-hidden flex-col">

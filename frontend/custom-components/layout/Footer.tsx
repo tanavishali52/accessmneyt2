@@ -15,16 +15,16 @@ const LINKS = {
     { label: "Order History", href: "/orders" },
   ],
   Help: [
-    { label: "FAQ",          href: "#" },
-    { label: "Shipping Info",href: "#" },
-    { label: "Returns",      href: "#" },
-    { label: "Contact Us",   href: "#" },
+    { label: "FAQ",          href: "/faq" },
+    { label: "Shipping Info",href: "/shipping" },
+    { label: "Returns",      href: "/returns" },
+    { label: "Contact Us",   href: "/contact" },
   ],
 };
 
 export function Footer() {
   return (
-    <footer className="bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 mt-auto">
+    <footer className="bg-white dark:bg-transparent border-t border-zinc-200 dark:border-white/10 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Main grid */}

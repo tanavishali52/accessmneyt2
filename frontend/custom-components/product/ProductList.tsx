@@ -19,7 +19,7 @@ interface ProductListProps {
 
 function ProductListSkeleton() {
   return (
-    <div className="flex gap-4 p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl">
+    <div className="flex gap-4 p-4 surface-glass border border-zinc-200 rounded-xl">
       <Skeleton className="h-20 w-20 sm:h-24 sm:w-24 shrink-0" rounded="lg" />
       <div className="flex-1 space-y-2">
         <Skeleton height="12px" className="w-16" />
@@ -67,7 +67,7 @@ export function ProductList({ products, loading = false, className }: ProductLis
     <div className={cn("space-y-3", className)}>
       {products.map((product) => (
         <Link key={product._id} href={`/products/${product._id}`} className="group block">
-          <div className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:shadow-md transition-all duration-200">
+          <div className="flex gap-3 sm:gap-4 p-3 sm:p-4 surface-glass border border-zinc-200 rounded-xl hover:shadow-md transition-all duration-200">
             {/* Image */}
             <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
               <Image

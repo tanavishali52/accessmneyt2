@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, type Transition, type TargetAndTransition } from "framer-motion";
 import {
   ArrowRight, ChevronLeft, ChevronRight,
   Cpu, Shirt, BookOpen, Dumbbell, Home as HomeIcon, Tag,
@@ -43,7 +43,7 @@ const HERO_IMAGES = [
 ];
 
 // Each card floats smoothly — varied height, speed, and rotation so they feel independent
-const HERO_ANIMATIONS = [
+const HERO_ANIMATIONS: { animate: TargetAndTransition; transition: Transition }[] = [
   // Card 0 — gentle float with slight clockwise rock (Electronics)
   {
     animate: { y: [0, -18, 0], rotate: [0, -2, 0] },

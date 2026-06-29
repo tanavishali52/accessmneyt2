@@ -71,10 +71,10 @@ export function Sidebar({ className }: SidebarProps) {
       {/* Desktop sidebar */}
       <aside className={cn(
         "hidden lg:flex flex-col w-60 shrink-0 h-screen sticky top-0",
-        "bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800",
+        "bg-white dark:bg-zinc-950/60 dark:backdrop-blur-xl border-r border-zinc-200 dark:border-white/10",
         className
       )}>
-        <div className="flex items-center gap-2.5 px-5 h-16 border-b border-zinc-200 dark:border-zinc-800 shrink-0">
+        <div className="flex items-center gap-2.5 px-5 h-16 border-b border-zinc-200 dark:border-white/10 shrink-0">
           <div className="h-8 w-8 rounded-xl bg-violet-600 flex items-center justify-center shrink-0">
             <Store className="h-4 w-4 text-white" />
           </div>
@@ -118,7 +118,7 @@ export function Sidebar({ className }: SidebarProps) {
       </aside>
 
       {/* Mobile topbar */}
-      <div className="lg:hidden flex items-center justify-between h-14 px-4 bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-30">
+      <div className="lg:hidden flex items-center justify-between h-14 px-4 bg-white dark:bg-zinc-950/70 dark:backdrop-blur-xl border-b border-zinc-200 dark:border-white/10 sticky top-0 z-30">
         <div className="flex items-center gap-2">
           <div className="h-7 w-7 rounded-xl bg-violet-600 flex items-center justify-center">
             <Store className="h-3.5 w-3.5 text-white" />
@@ -138,8 +138,8 @@ export function Sidebar({ className }: SidebarProps) {
       {mobileOpen && (
         <>
           <div className="lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="lg:hidden fixed left-0 top-0 z-50 h-full w-64 bg-white dark:bg-zinc-950 shadow-2xl flex flex-col animate-slide-down">
-            <div className="flex items-center justify-between px-4 h-14 border-b border-zinc-200 dark:border-zinc-800 shrink-0">
+          <div className="lg:hidden fixed left-0 top-0 z-50 h-full w-64 bg-white dark:bg-zinc-950/90 dark:backdrop-blur-xl shadow-2xl flex flex-col animate-slide-down">
+            <div className="flex items-center justify-between px-4 h-14 border-b border-zinc-200 dark:border-white/10 shrink-0">
               <div className="flex items-center gap-2">
                 <div className="h-7 w-7 rounded-xl bg-violet-600 flex items-center justify-center">
                   <Store className="h-3.5 w-3.5 text-white" />

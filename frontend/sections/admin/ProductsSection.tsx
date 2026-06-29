@@ -245,7 +245,7 @@ export default function ProductsSection() {
                 placeholder="Search products…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-10 pl-9 pr-9 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors"
+                className="w-full h-10 pl-9 pr-9 text-sm rounded-xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.05] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors"
               />
               {search && (
                 <button
@@ -261,7 +261,7 @@ export default function ProductsSection() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="h-10 px-3 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors cursor-pointer"
+              className="h-10 px-3 text-sm rounded-xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.05] text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors cursor-pointer"
             >
               <option value="">All categories</option>
               {CATEGORIES.map((cat) => (
@@ -280,11 +280,11 @@ export default function ProductsSection() {
 
         {/* ── Table ───────────────────────────────────────────────────────── */}
         {isLoading && <div className="text-center py-8 text-zinc-400">Loading products...</div>}
-        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-white dark:bg-zinc-900 shadow-sm">
+        <div className="rounded-xl border border-zinc-200 overflow-hidden surface-glass shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="sticky top-0 z-10 bg-zinc-50 dark:bg-zinc-800/70 border-b border-zinc-200 dark:border-zinc-700">
+                <tr className="sticky top-0 z-10 bg-zinc-50 dark:bg-white/[0.04] border-b border-zinc-200 dark:border-white/10">
                   <th className="text-left px-4 py-3 font-semibold text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
                     Product
                   </th>
@@ -302,7 +302,7 @@ export default function ProductsSection() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+              <tbody className="divide-y divide-zinc-100 dark:divide-white/[0.06]">
                 {filtered.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-16 text-center">
@@ -321,7 +321,7 @@ export default function ProductsSection() {
                   filtered.map((product) => (
                     <tr
                       key={product._id}
-                      className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group"
+                      className="hover:bg-zinc-50 dark:hover:bg-white/[0.04] transition-colors group"
                     >
                       {/* Image + name */}
                       <td className="px-4 py-3">
@@ -416,7 +416,7 @@ export default function ProductsSection() {
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden">
+          <div className="w-full max-w-lg surface-glass border border-zinc-200 rounded-2xl shadow-2xl overflow-hidden">
             {/* Modal header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
@@ -623,7 +623,7 @@ export default function ProductsSection() {
             if (e.target === e.currentTarget) setDeleteTarget(null);
           }}
         >
-          <div className="w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden">
+          <div className="w-full max-w-sm surface-glass border border-zinc-200 rounded-2xl shadow-2xl overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
