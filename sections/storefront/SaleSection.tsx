@@ -4,19 +4,26 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Tag, X } from "lucide-react";
-import { MOCK_PRODUCTS } from "@/lib/mockData";
-import { CATEGORIES } from "@/lib/constants";
+import { useGetProductsQuery } from "@/services/productsService";
 import { ProductCard } from "@/custom-components/product/ProductCard";
 import { EmptyState } from "@/custom-components/ui/EmptyState";
 
-// Only show products that have a sale price
-const SALE_PRODUCTS = MOCK_PRODUCTS.filter((p) => p.originalPrice !== undefined);
-
-// Categories present in sale products
-const SALE_CATEGORIES = ["All", ...Array.from(new Set(SALE_PRODUCTS.map((p) => p.category)))];
-
 export function SaleSection() {
   const [activeCategory, setActiveCategory] = useState("All");
+
+  const { data, isLoading } = useGetProductsQuery({ limit: 100 });
+  const allProducts = data?.data ?? [];
+  const SALE_PRODUCTS = allProducts.filter((p) => p.originalPrice !== undefined && p.originalPrice > p.price);
+  const uniqueCategories = Array.from(new Set(SALE_PRODUCTS.map((p) => p.category)));
+  const SALE_CATEGORIES = ["All", ...uniqueCategories];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" />
+      </div>
+    );
+  }
 
   const filtered = activeCategory === "All"
     ? SALE_PRODUCTS

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SlidersHorizontal, X } from "lucide-react";
-import { filterProducts } from "@/lib/mockData";
+import { useGetProductsQuery } from "@/services/productsService";
 import { CATEGORIES } from "@/lib/constants";
 import { Search } from "@/custom-components/ui/Search";
 import { Pagination } from "@/custom-components/ui/Pagination";
@@ -97,16 +97,19 @@ export function CatalogSection() {
     categories.length +
     (priceRange[0] > 0 || priceRange[1] < 500 ? 1 : 0);
 
-  // ── Compute results from mock data ──
-  const results = filterProducts({
-    search,
-    category: categories[0],
-    minPrice: priceRange[0],
-    maxPrice: priceRange[1],
-    sortBy: sortBy as "newest" | "price_asc" | "price_desc",
+  // ── Fetch products from API ──
+  const { data, isLoading, isFetching } = useGetProductsQuery({
+    search: search || undefined,
+    category: categories[0] || undefined,
+    minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
+    maxPrice: priceRange[1] < 500 ? priceRange[1] : undefined,
+    sortBy: sortBy as any,
     page,
     limit: LIMIT,
   });
+  const products = data?.data ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = data?.totalPages ?? 1;
 
   // Restore view preference from localStorage
   useEffect(() => {
@@ -150,7 +153,7 @@ export function CatalogSection() {
       <div className="mb-6 sm:mb-8">
         <Heading as="h1" size="2xl" className="mb-1">All Products</Heading>
         <Paragraph variant="muted">
-          {results.total} product{results.total !== 1 ? "s" : ""} available
+          {total} product{total !== 1 ? "s" : ""} available
         </Paragraph>
       </div>
 
@@ -219,7 +222,7 @@ export function CatalogSection() {
             </div>
             <FilterSidebar />
             <Button variant="primary" fullWidth className="mt-4" onClick={() => setFiltersOpen(false)}>
-              Show {results.total} results
+              Show {total} results
             </Button>
           </div>
         </div>
@@ -235,7 +238,9 @@ export function CatalogSection() {
 
         {/* Product area */}
         <div className="flex-1 min-w-0 space-y-6">
-          {results.total === 0 ? (
+          {isLoading || isFetching ? (
+            <div className="flex items-center justify-center py-20 text-zinc-400">Loading…</div>
+          ) : total === 0 ? (
             <EmptyState
               icon={<PackageSearch className="h-8 w-8" />}
               title="No products found"
@@ -245,16 +250,16 @@ export function CatalogSection() {
           ) : (
             <>
               {view === "grid" ? (
-                <ProductGrid products={results.data} />
+                <ProductGrid products={products} />
               ) : (
-                <ProductList products={results.data} />
+                <ProductList products={products} />
               )}
 
-              {results.totalPages > 1 && (
+              {totalPages > 1 && (
                 <Pagination
-                  page={results.page}
-                  totalPages={results.totalPages}
-                  total={results.total}
+                  page={page}
+                  totalPages={totalPages}
+                  total={total}
                   limit={LIMIT}
                   onPageChange={handlePage}
                 />

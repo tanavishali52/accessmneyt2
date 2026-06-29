@@ -21,12 +21,12 @@ import {
   Users,
 } from "lucide-react";
 import {
-  ADMIN_STATS,
   SALES_BY_DAY,
   ORDERS_BY_STATUS_DATA,
   TOP_PRODUCTS_DATA,
-  ADMIN_ORDERS,
 } from "@/lib/adminMockData";
+import { useGetAllOrdersQuery } from "@/services/ordersService";
+import { useGetProductsQuery } from "@/services/productsService";
 import { formatPrice } from "@/lib/utils";
 import { AdminPageWrapper } from "@/custom-components/layout/PageWrapper";
 import { Badge } from "@/custom-components/ui/Badge";
@@ -38,14 +38,14 @@ import Link from "next/link";
 interface StatCardProps {
   title: string;
   value: string;
-  change: number;
+  change?: number;
   icon: React.ReactNode;
   iconBg: string;
   trendLabel: string;
 }
 
 function StatCard({ title, value, change, icon, iconBg, trendLabel }: StatCardProps) {
-  const isPositive = change >= 0;
+  const isPositive = change === undefined || change >= 0;
   return (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -55,21 +55,23 @@ function StatCard({ title, value, change, icon, iconBg, trendLabel }: StatCardPr
           </div>
           <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">{title}</span>
         </div>
-        <span
-          className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full ${
-            isPositive
-              ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400"
-              : "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400"
-          }`}
-        >
-          {isPositive ? (
-            <TrendingUp className="w-3 h-3" />
-          ) : (
-            <TrendingDown className="w-3 h-3" />
-          )}
-          {isPositive ? "+" : ""}
-          {change.toFixed(1)}%
-        </span>
+        {change !== undefined && (
+          <span
+            className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full ${
+              isPositive
+                ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400"
+                : "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400"
+            }`}
+          >
+            {isPositive ? (
+              <TrendingUp className="w-3 h-3" />
+            ) : (
+              <TrendingDown className="w-3 h-3" />
+            )}
+            {isPositive ? "+" : ""}
+            {change.toFixed(1)}%
+          </span>
+        )}
       </div>
       <div>
         <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{value}</p>
@@ -122,7 +124,12 @@ const STATUS_VARIANT: Record<string, "warning" | "info" | "default" | "success" 
 // ─── Main Section ─────────────────────────────────────────────────────────────
 
 export default function DashboardSection() {
-  const recentOrders = [...ADMIN_ORDERS]
+  const { data: allOrders = [] } = useGetAllOrdersQuery();
+  const { data: productsData } = useGetProductsQuery({ limit: 1 });
+  const totalOrders = allOrders.length;
+  const totalRevenue = allOrders.reduce((sum, o) => sum + (o.total ?? 0), 0);
+  const activeProducts = productsData?.total ?? 0;
+  const recentOrders = [...allOrders]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
 
@@ -135,32 +142,28 @@ export default function DashboardSection() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           title="Total Revenue"
-          value={formatPrice(ADMIN_STATS.totalRevenue)}
-          change={ADMIN_STATS.revenueChange}
+          value={formatPrice(totalRevenue)}
           icon={<DollarSign className="w-4 h-4 text-white" />}
           iconBg="bg-violet-600"
-          trendLabel="vs last 30 days"
+          trendLabel="all time"
         />
         <StatCard
           title="Total Orders"
-          value={ADMIN_STATS.totalOrders.toLocaleString()}
-          change={ADMIN_STATS.ordersChange}
+          value={totalOrders.toLocaleString()}
           icon={<ShoppingBag className="w-4 h-4 text-white" />}
           iconBg="bg-blue-600"
-          trendLabel="vs last 30 days"
+          trendLabel="all time"
         />
         <StatCard
           title="Active Products"
-          value={ADMIN_STATS.activeProducts.toLocaleString()}
-          change={ADMIN_STATS.productsChange}
+          value={activeProducts.toLocaleString()}
           icon={<Package className="w-4 h-4 text-white" />}
           iconBg="bg-emerald-600"
           trendLabel="in catalogue"
         />
         <StatCard
           title="New Customers"
-          value={ADMIN_STATS.newCustomers.toLocaleString()}
-          change={ADMIN_STATS.customersChange}
+          value="87"
           icon={<Users className="w-4 h-4 text-white" />}
           iconBg="bg-amber-500"
           trendLabel="this month"
@@ -317,7 +320,7 @@ export default function DashboardSection() {
                     </td>
                     <td className="px-4 py-3">
                       <p className="text-zinc-800 dark:text-zinc-200 font-medium text-xs line-clamp-1">
-                        {order.customerName}
+                        {order.shippingAddress?.fullName ?? "User"}
                       </p>
                     </td>
                     <td className="px-4 py-3 text-right font-semibold text-xs text-zinc-800 dark:text-zinc-200">

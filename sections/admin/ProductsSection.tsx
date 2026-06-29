@@ -2,7 +2,12 @@
 import { useState, useId } from "react";
 import Image from "next/image";
 import { Pencil, Trash2, Plus, Search, X, Package } from "lucide-react";
-import { INITIAL_PRODUCTS } from "@/lib/adminMockData";
+import {
+  useGetProductsQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+} from "@/services/productsService";
 import { CATEGORIES } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 import type { Product } from "@/types";
@@ -73,7 +78,11 @@ export default function ProductsSection() {
   const formId = useId();
 
   // ── Data state ──────────────────────────────────────────────────────────────
-  const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
+  const { data: productsData, isLoading } = useGetProductsQuery({ limit: 100 });
+  const products = productsData?.data ?? [];
+  const [createProduct, { isLoading: creating }] = useCreateProductMutation();
+  const [updateProduct, { isLoading: updating }] = useUpdateProductMutation();
+  const [deleteProduct, { isLoading: deleting }] = useDeleteProductMutation();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
 
@@ -137,63 +146,44 @@ export default function ProductsSection() {
     return Object.keys(errors).length === 0;
   }
 
-  function handleSave() {
+  const handleSave = async (formData: ProductForm) => {
     if (!validate()) return;
-
-    const now = new Date().toISOString();
-    const price = parseFloat(form.price);
-    const originalPrice = form.originalPrice.trim()
-      ? parseFloat(form.originalPrice)
-      : undefined;
-    const stock = parseInt(form.stock, 10);
-
-    if (editingProduct) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p._id === editingProduct._id
-            ? {
-                ...p,
-                name: form.name.trim(),
-                description: form.description.trim(),
-                category: form.category,
-                price,
-                originalPrice,
-                stock,
-                imageUrl: form.imageUrl.trim(),
-                updatedAt: now,
-              }
-            : p
-        )
-      );
-    } else {
-      const newProduct: Product = {
-        _id: Date.now().toString(),
-        name: form.name.trim(),
-        description: form.description.trim(),
-        category: form.category,
-        price,
-        originalPrice,
-        stock,
-        imageUrl: form.imageUrl.trim(),
-        createdAt: now,
-        updatedAt: now,
+    try {
+      const payload = {
+        name: formData.name,
+        description: formData.description,
+        price: Number(formData.price),
+        originalPrice: formData.originalPrice ? Number(formData.originalPrice) : undefined,
+        imageUrl: formData.imageUrl,
+        category: formData.category,
+        stock: Number(formData.stock),
       };
-      setProducts((prev) => [newProduct, ...prev]);
+      if (editingProduct) {
+        await updateProduct({ id: editingProduct._id, data: payload }).unwrap();
+      } else {
+        await createProduct(payload as any).unwrap();
+      }
+      setModalOpen(false);
+      setEditingProduct(null);
+    } catch {
+      alert("Failed to save product. Please try again.");
     }
-
-    closeModal();
-  }
+  };
 
   // ── Delete helpers ──────────────────────────────────────────────────────────
   function confirmDelete(p: Product) {
     setDeleteTarget(p);
   }
 
-  function handleDelete() {
+  const handleDelete = async () => {
     if (!deleteTarget) return;
-    setProducts((prev) => prev.filter((p) => p._id !== deleteTarget._id));
-    setDeleteTarget(null);
-  }
+    try {
+      await deleteProduct(deleteTarget._id).unwrap();
+      setDeleteTarget(null);
+    } catch {
+      alert("Failed to delete product.");
+    }
+  };
 
   // ── Discount % helper ───────────────────────────────────────────────────────
   function discountPercent(price: number, original: number) {
@@ -257,6 +247,7 @@ export default function ProductsSection() {
         </div>
 
         {/* ── Table ───────────────────────────────────────────────────────── */}
+        {isLoading && <div className="text-center py-8 text-zinc-400">Loading products...</div>}
         <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden bg-white dark:bg-zinc-900 shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -569,7 +560,7 @@ export default function ProductsSection() {
               <Button variant="secondary" onClick={closeModal}>
                 Cancel
               </Button>
-              <Button variant="primary" onClick={handleSave}>
+              <Button variant="primary" onClick={() => handleSave(form)} disabled={creating || updating}>
                 {editingProduct ? "Save changes" : "Add product"}
               </Button>
             </div>
@@ -615,7 +606,7 @@ export default function ProductsSection() {
               <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
                 Cancel
               </Button>
-              <Button variant="danger" onClick={handleDelete}>
+              <Button variant="danger" onClick={handleDelete} disabled={deleting}>
                 Delete
               </Button>
             </div>

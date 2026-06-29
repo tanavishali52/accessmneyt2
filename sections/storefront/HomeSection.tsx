@@ -9,11 +9,10 @@ import {
   Cpu, Shirt, BookOpen, Dumbbell, Home as HomeIcon, Tag,
   Truck, ShieldCheck, Award, RefreshCcw,
 } from "lucide-react";
-import { MOCK_PRODUCTS } from "@/lib/mockData";
+import { useGetProductsQuery } from "@/services/productsService";
 import { CATEGORIES } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 import { ProductCard } from "@/custom-components/product/ProductCard";
-import type { Product } from "@/types";
 
 // ─── Quick-shop category cards ────────────────────────────────────────────────
 
@@ -38,20 +37,21 @@ const TRUST = [
 // ─── Hero floating product image ──────────────────────────────────────────────
 
 const HERO_IMAGES = [
-  { src: MOCK_PRODUCTS[0].imageUrl, bg: "bg-blue-100  dark:bg-blue-950/60",  label: "Electronics" },
-  { src: MOCK_PRODUCTS[4].imageUrl, bg: "bg-pink-100  dark:bg-pink-950/60",  label: "Clothing"    },
-  { src: MOCK_PRODUCTS[5].imageUrl, bg: "bg-amber-100 dark:bg-amber-950/60", label: "Sports"      },
+  { src: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop", bg: "bg-blue-100 dark:bg-blue-950/60", label: "Electronics" },
+  { src: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=300&h=300&fit=crop", bg: "bg-pink-100 dark:bg-pink-950/60", label: "Clothing" },
+  { src: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop", bg: "bg-amber-100 dark:bg-amber-950/60", label: "Sports" },
 ];
 
 // ─── Category Carousel ────────────────────────────────────────────────────────
 
-const PAGE_SIZE = 4;
-
 function CategoryCarousel({ category }: { category: string }) {
-  const products: Product[] = MOCK_PRODUCTS.filter((p) => p.category === category);
   const [page, setPage] = useState(0);
-  const totalPages = Math.ceil(products.length / PAGE_SIZE);
-  const visible = products.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+  const { data } = useGetProductsQuery({ category, limit: 20 });
+  const products = data?.data ?? [];
+  const perPage = 4;
+  const maxPage = Math.max(0, Math.ceil(products.length / perPage) - 1);
+  const visible = products.slice(page * perPage, page * perPage + perPage);
+  const totalPages = maxPage + 1;
 
   if (products.length === 0) return null;
 
@@ -106,9 +106,7 @@ function CategoryCarousel({ category }: { category: string }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const CAROUSEL_CATEGORIES = CATEGORIES.filter(
-  (c) => MOCK_PRODUCTS.some((p) => p.category === c)
-);
+const CAROUSEL_CATEGORIES = CATEGORIES;
 
 export function HomeSection() {
   return (

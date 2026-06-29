@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { Eye, Search, X, ShoppingBag } from "lucide-react";
-import { ADMIN_ORDERS, type AdminOrder, type AdminOrderStatus } from "@/lib/adminMockData";
+import { useGetAllOrdersQuery, useUpdateOrderStatusMutation } from "@/services/ordersService";
+import type { Order, OrderStatus } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { AdminPageWrapper } from "@/custom-components/layout/PageWrapper";
 import { Badge } from "@/custom-components/ui/Badge";
@@ -10,9 +11,9 @@ import { EmptyState } from "@/custom-components/ui/EmptyState";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ALL_STATUSES: AdminOrderStatus[] = ["pending", "processing", "shipped", "delivered", "cancelled"];
+const ALL_STATUSES: OrderStatus[] = ["pending", "processing", "shipped", "delivered", "cancelled"];
 
-const STATUS_VARIANT: Record<AdminOrderStatus, "warning" | "info" | "default" | "success" | "danger"> = {
+const STATUS_VARIANT: Record<OrderStatus, "warning" | "info" | "default" | "success" | "danger"> = {
   pending:    "warning",
   processing: "info",
   shipped:    "default",
@@ -20,7 +21,7 @@ const STATUS_VARIANT: Record<AdminOrderStatus, "warning" | "info" | "default" | 
   cancelled:  "danger",
 };
 
-const STATUS_LABEL: Record<AdminOrderStatus, string> = {
+const STATUS_LABEL: Record<OrderStatus, string> = {
   pending:    "Pending",
   processing: "Processing",
   shipped:    "Shipped",
@@ -28,7 +29,7 @@ const STATUS_LABEL: Record<AdminOrderStatus, string> = {
   cancelled:  "Cancelled",
 };
 
-const PAYMENT_VARIANT: Record<AdminOrder["paymentStatus"], "success" | "warning" | "danger"> = {
+const PAYMENT_VARIANT: Record<Order["paymentStatus"], "success" | "warning" | "danger"> = {
   paid:    "success",
   pending: "warning",
   failed:  "danger",
@@ -79,15 +80,15 @@ function StatChip({ label, count, variant, active, onClick }: StatChipProps) {
 // ─── Status Select (inline) ───────────────────────────────────────────────────
 
 interface StatusSelectProps {
-  value: AdminOrderStatus;
-  onChange: (next: AdminOrderStatus) => void;
+  value: OrderStatus;
+  onChange: (next: OrderStatus) => void;
 }
 
 function StatusSelect({ value, onChange }: StatusSelectProps) {
   return (
     <select
       value={value}
-      onChange={(e) => onChange(e.target.value as AdminOrderStatus)}
+      onChange={(e) => onChange(e.target.value as OrderStatus)}
       onClick={(e) => e.stopPropagation()}
       className="mt-1.5 block text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-violet-500 cursor-pointer"
     >
@@ -101,9 +102,9 @@ function StatusSelect({ value, onChange }: StatusSelectProps) {
 // ─── Order Detail Modal ────────────────────────────────────────────────────────
 
 interface OrderDetailModalProps {
-  order: AdminOrder;
+  order: Order;
   onClose: () => void;
-  onStatusChange: (id: string, next: AdminOrderStatus) => void;
+  onStatusChange: (id: string, next: OrderStatus) => void;
 }
 
 function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalProps) {
@@ -136,8 +137,8 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
           <section>
             <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-2">Customer</p>
             <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl px-4 py-3">
-              <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{order.customerName}</p>
-              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{order.customerEmail}</p>
+              <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{order.shippingAddress?.fullName ?? "—"}</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{"User " + order.userId.slice(-6)}</p>
             </div>
           </section>
 
@@ -187,7 +188,7 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
                 {STATUS_LABEL[order.status]}
               </Badge>
               <StatusSelect
-                value={order.status}
+                value={order.status as OrderStatus}
                 onChange={(next) => onStatusChange(order._id, next)}
               />
             </div>
@@ -208,13 +209,14 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
 // ─── Main Section ─────────────────────────────────────────────────────────────
 
 export default function OrdersSection() {
-  const [orders, setOrders] = useState<AdminOrder[]>(ADMIN_ORDERS);
-  const [activeStatus, setActiveStatus] = useState<AdminOrderStatus | "all">("all");
+  const { data: orders = [], isLoading } = useGetAllOrdersQuery();
+  const [updateOrderStatus] = useUpdateOrderStatusMutation();
+  const [activeStatus, setActiveStatus] = useState<OrderStatus | "all">("all");
   const [search, setSearch] = useState("");
-  const [selectedOrder, setSelectedOrder] = useState<AdminOrder | null>(null);
+  const [openOrder, setOpenOrder] = useState<Order | null>(null);
 
   // Status counts from current orders state
-  const statusCounts = ALL_STATUSES.reduce<Record<AdminOrderStatus, number>>(
+  const statusCounts = ALL_STATUSES.reduce<Record<OrderStatus, number>>(
     (acc, s) => {
       acc[s] = orders.filter((o) => o.status === s).length;
       return acc;
@@ -226,23 +228,28 @@ export default function OrdersSection() {
   const filtered = orders.filter((o) => {
     const matchesStatus = activeStatus === "all" || o.status === activeStatus;
     const q = search.trim().toLowerCase();
+    const customerName = o.shippingAddress?.fullName ?? "";
+    const customerDisplay = "user " + o.userId.slice(-6);
     const matchesSearch =
       !q ||
       o._id.toLowerCase().includes(q) ||
-      o.customerName.toLowerCase().includes(q) ||
-      o.customerEmail.toLowerCase().includes(q);
+      customerName.toLowerCase().includes(q) ||
+      customerDisplay.includes(q);
     return matchesStatus && matchesSearch;
   });
 
-  function handleStatusChange(id: string, next: AdminOrderStatus) {
-    setOrders((prev) =>
-      prev.map((o) => (o._id === id ? { ...o, status: next } : o))
-    );
-    // Keep modal in sync
-    setSelectedOrder((prev) => (prev && prev._id === id ? { ...prev, status: next } : prev));
-  }
+  const handleStatusChange = async (orderId: string, status: string) => {
+    try {
+      await updateOrderStatus({ id: orderId, data: { status } }).unwrap();
+      if (openOrder?._id === orderId) {
+        setOpenOrder((prev) => prev ? { ...prev, status: status as OrderStatus } : null);
+      }
+    } catch {
+      // ignore
+    }
+  };
 
-  const tabLabels: Array<AdminOrderStatus | "all"> = ["all", ...ALL_STATUSES];
+  const tabLabels: Array<OrderStatus | "all"> = ["all", ...ALL_STATUSES];
 
   return (
     <AdminPageWrapper title="Orders" description="Manage and update order statuses">
@@ -309,7 +316,33 @@ export default function OrdersSection() {
       </div>
 
       {/* ── Table ─────────────────────────────────────────────────────────── */}
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-zinc-100 dark:border-zinc-800 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+                  <th className="px-5 py-3 whitespace-nowrap">Order ID</th>
+                  <th className="px-5 py-3 whitespace-nowrap">Customer</th>
+                  <th className="px-5 py-3 whitespace-nowrap">Items</th>
+                  <th className="px-5 py-3 whitespace-nowrap">Total</th>
+                  <th className="px-5 py-3 whitespace-nowrap">Payment</th>
+                  <th className="px-5 py-3 whitespace-nowrap">Status</th>
+                  <th className="px-5 py-3 whitespace-nowrap">Date</th>
+                  <th className="px-5 py-3 whitespace-nowrap sr-only">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colSpan={8} className="px-5 py-10 text-center text-sm text-zinc-400 dark:text-zinc-500">
+                    Loading orders…
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : filtered.length === 0 ? (
         <EmptyState
           icon={<ShoppingBag className="w-6 h-6" />}
           title="No orders found"
@@ -362,10 +395,10 @@ export default function OrdersSection() {
                     {/* Customer */}
                     <td className="px-5 py-3">
                       <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 whitespace-nowrap">
-                        {order.customerName}
+                        {order.shippingAddress?.fullName ?? "—"}
                       </p>
                       <p className="text-xs text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
-                        {order.customerEmail}
+                        {"User " + order.userId.slice(-6)}
                       </p>
                     </td>
 
@@ -395,11 +428,11 @@ export default function OrdersSection() {
 
                     {/* Status — inline editable */}
                     <td className="px-5 py-3 whitespace-nowrap">
-                      <Badge variant={STATUS_VARIANT[order.status]} dot>
-                        {STATUS_LABEL[order.status]}
+                      <Badge variant={STATUS_VARIANT[order.status as OrderStatus]} dot>
+                        {STATUS_LABEL[order.status as OrderStatus]}
                       </Badge>
                       <StatusSelect
-                        value={order.status}
+                        value={order.status as OrderStatus}
                         onChange={(next) => handleStatusChange(order._id, next)}
                       />
                     </td>
@@ -412,7 +445,7 @@ export default function OrdersSection() {
                     {/* Actions */}
                     <td className="px-5 py-3 whitespace-nowrap">
                       <button
-                        onClick={() => setSelectedOrder(order)}
+                        onClick={() => setOpenOrder(order)}
                         className="p-1.5 rounded-lg text-zinc-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-colors"
                         aria-label={`View order ${order._id}`}
                       >
@@ -428,10 +461,10 @@ export default function OrdersSection() {
       )}
 
       {/* ── Order Detail Modal ─────────────────────────────────────────────── */}
-      {selectedOrder && (
+      {openOrder && (
         <OrderDetailModal
-          order={selectedOrder}
-          onClose={() => setSelectedOrder(null)}
+          order={openOrder}
+          onClose={() => setOpenOrder(null)}
           onStatusChange={handleStatusChange}
         />
       )}

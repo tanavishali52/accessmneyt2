@@ -10,6 +10,7 @@ import { Badge } from "@/custom-components/ui/Badge";
 import { Button } from "@/custom-components/ui/Button";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addLocalItem, openCart } from "@/store/slices/cartSlice";
+import { useAddToCartMutation } from "@/services/cartService";
 
 interface ProductCardProps {
   product: Product;
@@ -19,24 +20,29 @@ interface ProductCardProps {
 export function ProductCard({ product, className }: ProductCardProps) {
   const dispatch = useAppDispatch();
   const { role } = useAppSelector((s) => s.auth);
+  const [addToCart, { isLoading: cartLoading }] = useAddToCartMutation();
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (role === "guest") {
-      dispatch(
-        addLocalItem({
-          productId: product._id,
-          name: product.name,
-          price: product.price,
-          imageUrl: product.imageUrl,
-          quantity: 1,
-          stock: product.stock,
-        })
-      );
+      dispatch(addLocalItem({
+        productId: product._id,
+        name: product.name,
+        price: product.price,
+        imageUrl: product.imageUrl,
+        quantity: 1,
+        stock: product.stock,
+      }));
       dispatch(openCart());
+    } else {
+      try {
+        await addToCart({ productId: product._id, quantity: 1 }).unwrap();
+        dispatch(openCart());
+      } catch {
+        // silently fail — user sees cart
+      }
     }
-    // user/admin: handled by cartService in ProductDetailSection
   };
 
   const isLowStock    = product.stock > 0 && product.stock <= 5;
@@ -92,7 +98,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
               variant="primary"
               size="sm"
               onClick={handleAddToCart}
-              disabled={isOutOfStock}
+              disabled={isOutOfStock || cartLoading}
               leftIcon={<ShoppingCart className="h-3.5 w-3.5" />}
               className="shrink-0"
             >
