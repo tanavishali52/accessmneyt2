@@ -55,69 +55,17 @@ export function SignupSection() {
   };
 
   return (
-    <div className="min-h-screen flex bg-zinc-50 dark:bg-transparent">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-transparent px-4 py-10">
 
-      {/* ── Left panel ──────────────────────────────────────────────────────── */}
-      <div className="hidden lg:flex lg:w-[42%] xl:w-[45%] relative overflow-hidden flex-col">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-700 via-violet-700 to-violet-900" />
-        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-indigo-400/25 blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 w-96 h-96 rounded-full bg-violet-500/30 blur-3xl" />
-        <div className="absolute top-1/3 left-1/4 w-48 h-48 rounded-full bg-violet-300/15 blur-2xl" />
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
-        <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center group-hover:bg-white/30 transition-colors">
-              <Store className="h-5 w-5 text-white" />
-            </div>
-            <span className="font-bold text-white text-xl tracking-tight">ShopHub</span>
-          </Link>
-
-          <div className="mt-auto space-y-7 mb-8">
-            <div>
-              <h1 className="text-3xl xl:text-4xl font-bold text-white leading-tight mb-3">
-                Your next favourite<br />
-                <span className="text-violet-200">store awaits.</span>
-              </h1>
-              <p className="text-violet-100/75 text-sm xl:text-base leading-relaxed max-w-sm">
-                Join thousands of smart shoppers. Creating an account takes less than a minute.
-              </p>
-            </div>
-
-            <motion.ul variants={list} initial="hidden" animate="visible" className="space-y-3">
-              {PERKS.map(({ icon: Icon, title, detail }) => (
-                <motion.li key={title} variants={item} className="flex items-start gap-3.5">
-                  <div className="h-8 w-8 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center shrink-0 mt-0.5">
-                    <Icon className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white leading-tight">{title}</p>
-                    <p className="text-xs text-violet-200/80 mt-0.5">{detail}</p>
-                  </div>
-                </motion.li>
-              ))}
-            </motion.ul>
-          </div>
-
-          <blockquote className="border-l-2 border-white/30 pl-4">
-            <p className="text-xs text-violet-100/70 italic leading-relaxed">
-              &ldquo;Signed up in 30 seconds. Now I can&apos;t stop shopping.&rdquo;
-            </p>
-            <footer className="mt-1.5 text-[11px] text-violet-200/60">— Sarah K., Verified customer</footer>
-          </blockquote>
-        </div>
-      </div>
-
-      {/* ── Right panel — form ───────────────────────────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-10 lg:py-12 overflow-y-auto">
+      {/* ── Centered form card ───────────────────────────────────────────────── */}
+      <div className="w-full max-w-[440px]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="w-full max-w-[420px]"
+          className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-lg p-8 sm:p-10"
         >
-          <Link href="/" className="flex items-center gap-2.5 mb-8 lg:hidden">
+          <Link href="/" className="flex items-center gap-2.5 mb-8">
             <div className="h-9 w-9 rounded-xl bg-violet-600 flex items-center justify-center">
               <Store className="h-4.5 w-4.5 text-white" />
             </div>
@@ -189,16 +137,6 @@ export function SignupSection() {
                 </button>
               }
             />
-
-            {/* Mobile perks strip */}
-            <div className="lg:hidden grid grid-cols-2 gap-2 py-1">
-              {PERKS.map(({ icon: Icon, title }) => (
-                <div key={title} className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-                  <Icon className="h-3.5 w-3.5 text-violet-500 shrink-0" />
-                  {title}
-                </div>
-              ))}
-            </div>
 
             <Button type="submit" variant="primary" size="lg" fullWidth loading={isLoading}
               rightIcon={<ArrowRight className="h-4 w-4" />} className="mt-2">

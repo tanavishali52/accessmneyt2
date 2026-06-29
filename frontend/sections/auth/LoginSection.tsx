@@ -65,84 +65,18 @@ export function LoginSection() {
   };
 
   return (
-    <div className="min-h-screen flex bg-zinc-50 dark:bg-transparent">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-transparent px-4 py-10">
 
-      {/* ── Left panel ──────────────────────────────────────────────────────── */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden flex-col">
-        {/* Gradient base */}
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-800" />
-
-        {/* Decorative orbs */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-violet-500/30 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-indigo-500/40 blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-violet-400/20 blur-2xl" />
-
-        {/* Subtle grid overlay */}
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
-        {/* Content */}
-        <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
-
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center group-hover:bg-white/30 transition-colors">
-              <Store className="h-5 w-5 text-white" />
-            </div>
-            <span className="font-bold text-white text-xl tracking-tight">ShopHub</span>
-          </Link>
-
-          {/* Main headline */}
-          <div className="mt-auto mb-10 space-y-5">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-medium text-white/90">Trusted by 10,000+ shoppers</span>
-            </div>
-
-            <h1 className="text-3xl xl:text-4xl font-bold text-white leading-tight">
-              Welcome back.<br />
-              <span className="text-violet-200">Good to see you.</span>
-            </h1>
-
-            <p className="text-violet-100/80 text-sm xl:text-base leading-relaxed max-w-sm">
-              Sign in to access your orders, wishlist, and a personalised shopping experience tailored just for you.
-            </p>
-
-            {/* Feature list */}
-            <ul className="space-y-2.5 pt-2">
-              {FEATURES.map(({ icon: Icon, label }) => (
-                <li key={label} className="flex items-center gap-3">
-                  <div className="h-7 w-7 rounded-lg bg-white/15 backdrop-blur-sm flex items-center justify-center shrink-0">
-                    <Icon className="h-3.5 w-3.5 text-white" />
-                  </div>
-                  <span className="text-sm text-violet-100">{label}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-3">
-            {STATS.map(({ value, label }) => (
-              <div key={label} className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-3 text-center">
-                <p className="text-xl font-bold text-white">{value}</p>
-                <p className="text-[11px] text-violet-200 mt-0.5">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Right panel — form ───────────────────────────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-10 lg:py-12">
+      {/* ── Centered form card ───────────────────────────────────────────────── */}
+      <div className="w-full max-w-[440px]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="w-full max-w-[400px]"
+          className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-lg p-8 sm:p-10"
         >
-          {/* Mobile logo */}
-          <Link href="/" className="flex items-center gap-2.5 mb-8 lg:hidden">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 mb-8">
             <div className="h-9 w-9 rounded-xl bg-violet-600 flex items-center justify-center">
               <Store className="h-4.5 w-4.5 text-white" />
             </div>
@@ -197,9 +131,9 @@ export function LoginSection() {
                 }
               />
               <div className="flex justify-end">
-                <Link href="#" className="text-xs text-violet-600 dark:text-violet-400 hover:underline">
+                {/* <Link href="#" className="text-xs text-violet-600 dark:text-violet-400 hover:underline">
                   Forgot password?
-                </Link>
+                </Link> */}
               </div>
             </div>
 
