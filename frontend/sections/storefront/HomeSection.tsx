@@ -42,26 +42,22 @@ const HERO_IMAGES = [
   { src: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop", bg: "bg-amber-100 dark:bg-amber-950/60", label: "Sports" },
 ];
 
-// Each card gets a completely different continuous animation
+// Each card floats smoothly — varied height, speed, and rotation so they feel independent
 const HERO_ANIMATIONS = [
-  // Card 0 — breathe / morph scale (Electronics)
+  // Card 0 — gentle float with slight clockwise rock (Electronics)
   {
-    animate: { scale: [1, 1.06, 0.97, 1.04, 1], rotate: [0, -1.5, 0.5, -0.5, 0] },
-    transition: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+    animate: { y: [0, -18, 0], rotate: [0, -2, 0] },
+    transition: { duration: 4.2, repeat: Infinity, ease: "easeInOut", delay: 0 },
   },
-  // Card 1 — slow 3-D tilt swing (Clothing)
+  // Card 1 — deeper float with counter-clockwise rock (Clothing)
   {
-    animate: { rotateY: [0, 12, 0, -12, 0], y: [0, -10, 0] },
-    transition: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.4 },
+    animate: { y: [0, -24, 0], rotate: [0, 2.5, 0] },
+    transition: { duration: 5.6, repeat: Infinity, ease: "easeInOut", delay: 0.7 },
   },
-  // Card 2 — glitch jump (Sports)
+  // Card 2 — fast shallow float with side drift (Sports)
   {
-    animate: {
-      x: [0, -3, 4, -2, 0],
-      y: [0, -14, -6, -18, 0],
-      skewX: [0, -2, 1.5, -1, 0],
-    },
-    transition: { duration: 4, repeat: Infinity, ease: [0.36, 0.07, 0.19, 0.97], delay: 0.8 },
+    animate: { y: [0, -14, 0], x: [0, 6, 0], rotate: [0, -1.2, 0] },
+    transition: { duration: 3.8, repeat: Infinity, ease: "easeInOut", delay: 1.4 },
   },
 ];
 
@@ -234,11 +230,12 @@ export function HomeSection() {
               {/* Floating badge */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.6 }}
-                animate={{ opacity: 1, scale: 1, y: [0, -7, 0] }}
+                animate={{ opacity: 1, scale: 1, y: [0, -10, 0], rotate: [0, 1.5, -1, 0] }}
                 transition={{
                   opacity: { duration: 0.4, delay: 0.8 },
                   scale: { type: "spring", stiffness: 300, damping: 14, delay: 0.8 },
-                  y: { duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 1 },
+                  y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.2 },
+                  rotate: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.2 },
                 }}
                 whileHover={{ scale: 1.08, rotate: -2 }}
                 className="absolute bottom-8 right-4 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 rounded-xl px-3 py-2 shadow-xl z-10 cursor-default"
