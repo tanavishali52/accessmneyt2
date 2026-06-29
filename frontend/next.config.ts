@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
         pathname: "/api/upload/files/**",
       },
     ],
+    // Next.js image optimizer blocks private/loopback IPs (SSRF guard).
+    // Skip optimization in dev so localhost backend images render normally.
+    unoptimized: process.env.NODE_ENV === "development",
   },
 };
 
