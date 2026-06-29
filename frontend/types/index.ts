@@ -65,9 +65,11 @@ export interface UpdateProductPayload extends Partial<CreateProductPayload> {
 
 export interface CartItem {
   productId: string;
-  product?: Product;
-  quantity: number;
+  name: string;
   price: number;
+  imageUrl: string;
+  quantity: number;
+  stock: number;
 }
 
 export interface Cart {

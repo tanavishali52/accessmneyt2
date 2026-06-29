@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { ShoppingCart, ShoppingBag } from "lucide-react";
@@ -9,7 +9,12 @@ import { Heading } from "@/custom-components/ui/Typography";
 import { CartItem } from "./CartItem";
 import { CartSummary } from "./CartSummary";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { closeCart, addLocalItem, removeLocalItem, updateLocalItem } from "@/store/slices/cartSlice";
+import { closeCart, removeLocalItem, updateLocalItem } from "@/store/slices/cartSlice";
+import {
+  useGetCartQuery,
+  useUpdateCartItemMutation,
+  useRemoveCartItemMutation,
+} from "@/services/cartService";
 
 export function CartDrawer() {
   const dispatch = useAppDispatch();
@@ -17,17 +22,33 @@ export function CartDrawer() {
   const localItems = useAppSelector((s) => s.cart.localItems);
   const { role } = useAppSelector((s) => s.auth);
 
-  // For now all roles use local cart; server cart is wired in Phase 6
-  const items = localItems;
+  const isLoggedIn = role !== "guest";
+
+  // Server cart — only fetch when logged in
+  const { data: serverCart } = useGetCartQuery(undefined, { skip: !isLoggedIn });
+  const [updateItem] = useUpdateCartItemMutation();
+  const [removeItem] = useRemoveCartItemMutation();
+
+  // Server cart items already carry name/imageUrl/stock (stored at add time).
+  const items = isLoggedIn ? (serverCart?.items ?? []) : localItems;
+
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
   const handleUpdate = (productId: string, qty: number) => {
-    dispatch(updateLocalItem({ productId, quantity: qty }));
+    if (isLoggedIn) {
+      updateItem({ productId, quantity: qty });
+    } else {
+      dispatch(updateLocalItem({ productId, quantity: qty }));
+    }
   };
 
   const handleRemove = (productId: string) => {
-    dispatch(removeLocalItem(productId));
+    if (isLoggedIn) {
+      removeItem(productId);
+    } else {
+      dispatch(removeLocalItem(productId));
+    }
   };
 
   const footer = (
