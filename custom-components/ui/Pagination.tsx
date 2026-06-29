@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -62,7 +62,7 @@ export function Pagination({ page, totalPages, total, limit, onPageChange, class
                 className={cn(
                   "h-9 w-9 rounded-lg text-sm font-medium transition-colors min-h-[36px] min-w-[36px]",
                   page === p
-                    ? "bg-blue-600 text-white"
+                    ? "bg-violet-600 text-white"
                     : "text-slate-600 hover:bg-slate-100 active:bg-slate-200"
                 )}
               >

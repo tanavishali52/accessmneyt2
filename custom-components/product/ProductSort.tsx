@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ArrowUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,7 @@ export function ProductSort({ value, onChange, className }: ProductSortProps) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 pl-9 pr-8 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+        className="h-10 pl-9 pr-8 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-violet-500 cursor-pointer"
       >
         {SORT_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>

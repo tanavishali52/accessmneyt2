@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+﻿import { forwardRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Label } from "./Typography";
@@ -29,7 +29,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             id={selectId}
             className={cn(
               "w-full appearance-none h-9 rounded-lg border bg-white text-slate-900 text-sm px-3 pr-9",
-              "transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+              "transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent",
               "disabled:cursor-not-allowed disabled:opacity-50",
               error ? "border-red-400" : "border-slate-200",
               className

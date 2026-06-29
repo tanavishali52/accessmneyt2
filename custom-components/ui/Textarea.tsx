@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+﻿import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import { Label } from "./Typography";
 
@@ -23,7 +23,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             "w-full rounded-lg border bg-white text-slate-900 placeholder:text-slate-400 px-3 py-2.5",
             // Prevent iOS zoom on focus
             "text-[16px] sm:text-sm",
-            "transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none",
+            "transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none",
             "disabled:cursor-not-allowed disabled:opacity-50",
             error ? "border-red-400 focus:ring-red-400" : "border-slate-200",
             className

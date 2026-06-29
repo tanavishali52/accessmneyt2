@@ -4,36 +4,36 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  ShoppingCart, Menu, X, User, LogOut, Package,
+  ShoppingCart, Menu, X, LogOut, Package,
   ChevronDown, Search as SearchIcon, Store,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/custom-components/ui/Button";
-import { Badge } from "@/custom-components/ui/Badge";
 import { Avatar } from "@/custom-components/ui/Avatar";
 import { Divider } from "@/custom-components/ui/Divider";
+import { ThemeToggle } from "@/custom-components/ui/ThemeToggle";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import { openCart } from "@/store/slices/cartSlice";
 
 const NAV_LINKS = [
-  { label: "Shop", href: "/" },
+  { label: "Shop",       href: "/" },
   { label: "Categories", href: "/?view=categories" },
 ];
 
 export function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileOpen,   setMobileOpen]   = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen,   setSearchOpen]   = useState(false);
+  const [searchQuery,  setSearchQuery]  = useState("");
 
   const pathname = usePathname();
-  const router = useRouter();
+  const router   = useRouter();
   const dispatch = useAppDispatch();
 
   const { user, role } = useAppSelector((s) => s.auth);
-  const localItems = useAppSelector((s) => s.cart.localItems);
-  const cartCount = localItems.reduce((sum, i) => sum + i.quantity, 0);
+  const localItems     = useAppSelector((s) => s.cart.localItems);
+  const cartCount      = localItems.reduce((sum, i) => sum + i.quantity, 0);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,16 +51,16 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-white border-b border-slate-200 shadow-sm">
+    <header className="sticky top-0 z-30 w-full bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 shadow-sm animate-slide-down">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
+          <Link href="/" className="flex items-center gap-2 shrink-0 group">
+            <div className="h-8 w-8 rounded-xl bg-violet-600 flex items-center justify-center transition-transform group-hover:scale-105">
               <Store className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-slate-900 text-lg hidden sm:block">ShopHub</span>
+            <span className="font-bold text-zinc-900 dark:text-zinc-50 text-lg hidden sm:block">ShopHub</span>
           </Link>
 
           {/* Desktop nav links */}
@@ -72,8 +72,8 @@ export function Navbar() {
                 className={cn(
                   "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   pathname === link.href
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-slate-600 hover:bg-slate-100"
+                    ? "bg-violet-50 dark:bg-violet-950 text-violet-600 dark:text-violet-400"
+                    : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 )}
               >
                 {link.label}
@@ -82,26 +82,26 @@ export function Navbar() {
           </nav>
 
           {/* Desktop search */}
-          <form
-            onSubmit={handleSearch}
-            className="hidden md:flex flex-1 max-w-sm mx-4 relative"
-          >
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-sm mx-4 relative">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products…"
-              className="w-full h-9 pl-9 pr-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full h-9 pl-9 pr-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors"
             />
           </form>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-1.5">
+
+            {/* Theme toggle */}
+            <ThemeToggle />
 
             {/* Mobile search toggle */}
             <button
-              className="md:hidden flex items-center justify-center h-10 w-10 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+              className="md:hidden flex items-center justify-center h-10 w-10 rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               onClick={() => setSearchOpen(!searchOpen)}
               aria-label="Toggle search"
             >
@@ -111,12 +111,12 @@ export function Navbar() {
             {/* Cart */}
             <button
               onClick={() => dispatch(openCart())}
-              className="relative flex items-center justify-center h-10 w-10 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+              className="relative flex items-center justify-center h-10 w-10 rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               aria-label={`Cart — ${cartCount} items`}
             >
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-5 w-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 h-5 w-5 rounded-full bg-violet-600 text-white text-[10px] font-bold flex items-center justify-center">
                   {cartCount > 9 ? "9+" : cartCount}
                 </span>
               )}
@@ -127,28 +127,28 @@ export function Navbar() {
               <div className="relative hidden sm:block">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 h-10 px-2 rounded-lg hover:bg-slate-100 transition-colors"
+                  className="flex items-center gap-2 h-10 px-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                 >
                   <Avatar name={user.name} size="sm" />
-                  <span className="text-sm font-medium text-slate-700 max-w-[100px] truncate hidden md:block">
+                  <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 max-w-[100px] truncate hidden md:block">
                     {user.name}
                   </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-slate-400 hidden md:block" />
+                  <ChevronDown className="h-3.5 w-3.5 text-zinc-400 hidden md:block" />
                 </button>
 
                 {userMenuOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
-                    <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1 overflow-hidden">
+                    <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-lg dark:shadow-zinc-950/50 z-20 py-1 overflow-hidden animate-scale-in">
                       <div className="px-3 py-2">
-                        <p className="text-sm font-semibold text-slate-900 truncate">{user.name}</p>
-                        <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 truncate">{user.name}</p>
+                        <p className="text-xs text-zinc-400 truncate">{user.email}</p>
                       </div>
                       <Divider />
                       <Link
                         href="/orders"
                         onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                       >
                         <Package className="h-4 w-4" /> My Orders
                       </Link>
@@ -156,7 +156,7 @@ export function Navbar() {
                         <Link
                           href="/admin/dashboard"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 transition-colors"
+                          className="flex items-center gap-2 px-3 py-2 text-sm text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950 transition-colors"
                         >
                           <Store className="h-4 w-4" /> Admin Panel
                         </Link>
@@ -164,7 +164,7 @@ export function Navbar() {
                       <Divider />
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
                       >
                         <LogOut className="h-4 w-4" /> Sign out
                       </button>
@@ -185,7 +185,7 @@ export function Navbar() {
 
             {/* Mobile hamburger */}
             <button
-              className="flex md:hidden items-center justify-center h-10 w-10 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+              className="flex md:hidden items-center justify-center h-10 w-10 rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
@@ -196,16 +196,16 @@ export function Navbar() {
 
         {/* Mobile search bar */}
         {searchOpen && (
-          <div className="md:hidden pb-3">
+          <div className="md:hidden pb-3 animate-slide-down">
             <form onSubmit={handleSearch} className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
               <input
                 autoFocus
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products…"
-                className="w-full h-10 pl-9 pr-3 rounded-lg border border-slate-200 text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full h-10 pl-9 pr-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 text-base focus:outline-none focus:ring-2 focus:ring-violet-500"
               />
             </form>
           </div>
@@ -214,7 +214,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white">
+        <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 animate-slide-down">
           <nav className="px-4 py-3 space-y-1">
             {NAV_LINKS.map((link) => (
               <Link
@@ -222,34 +222,31 @@ export function Navbar() {
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-                  "flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  "flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
                   pathname === link.href
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-slate-700 hover:bg-slate-100"
+                    ? "bg-violet-50 dark:bg-violet-950 text-violet-600 dark:text-violet-400"
+                    : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 )}
               >
                 {link.label}
               </Link>
             ))}
           </nav>
-
           <Divider />
-
-          {/* Mobile auth */}
           <div className="px-4 py-3">
             {role !== "guest" && user ? (
               <div className="space-y-1">
                 <div className="flex items-center gap-3 px-3 py-2">
                   <Avatar name={user.name} size="sm" />
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">{user.name}</p>
-                    <p className="text-xs text-slate-400">{user.email}</p>
+                    <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{user.name}</p>
+                    <p className="text-xs text-zinc-400">{user.email}</p>
                   </div>
                 </div>
                 <Link
                   href="/orders"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-100"
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
                   <Package className="h-4 w-4" /> My Orders
                 </Link>
@@ -257,14 +254,14 @@ export function Navbar() {
                   <Link
                     href="/admin/dashboard"
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-blue-600 hover:bg-blue-50"
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950"
                   >
                     <Store className="h-4 w-4" /> Admin Panel
                   </Link>
                 )}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg text-sm text-red-600 hover:bg-red-50"
+                  className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950"
                 >
                   <LogOut className="h-4 w-4" /> Sign out
                 </button>

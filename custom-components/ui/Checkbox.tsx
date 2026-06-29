@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
@@ -22,8 +22,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           type="checkbox"
           id={checkId}
           className={cn(
-            "mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600",
-            "focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer",
+            "mt-0.5 h-4 w-4 rounded border-slate-300 text-violet-600",
+            "focus:ring-2 focus:ring-violet-500 focus:ring-offset-0 cursor-pointer",
             className
           )}
           {...props}

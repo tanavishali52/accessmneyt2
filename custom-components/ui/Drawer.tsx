@@ -68,7 +68,7 @@ export function Drawer({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "fixed top-0 z-50 h-full bg-white shadow-2xl flex flex-col",
+          "fixed top-0 z-50 h-full bg-white dark:bg-zinc-900 shadow-2xl dark:shadow-zinc-950 flex flex-col",
           "transition-transform duration-300 ease-in-out",
           widths[width],
           position[side],
@@ -76,7 +76,7 @@ export function Drawer({
           className
         )}
       >
-        <div className="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-slate-200 shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-zinc-200 dark:border-zinc-800 shrink-0">
           {title && <Heading size="md">{title}</Heading>}
           <Button variant="ghost" size="icon" onClick={onClose} className="ml-auto" aria-label="Close drawer">
             <X className="h-4 w-4" />
@@ -86,7 +86,7 @@ export function Drawer({
         <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4">{children}</div>
 
         {footer && (
-          <div className="shrink-0 px-4 sm:px-5 py-4 border-t border-slate-200">{footer}</div>
+          <div className="shrink-0 px-4 sm:px-5 py-4 border-t border-zinc-200 dark:border-zinc-800">{footer}</div>
         )}
       </div>
     </>

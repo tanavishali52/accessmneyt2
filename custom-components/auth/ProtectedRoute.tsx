@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -34,7 +34,7 @@ export function ProtectedRoute({
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-[60vh]">
-        <Spinner size="lg" className="text-blue-600" />
+        <Spinner size="lg" className="text-violet-600" />
       </div>
     );
   }

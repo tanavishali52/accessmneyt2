@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -62,7 +62,7 @@ export function CartItem({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-blue-600">
+            <span className="text-sm font-bold text-violet-600">
               {formatPrice(price * quantity)}
             </span>
             <Button

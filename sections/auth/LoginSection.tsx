@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -52,7 +52,7 @@ export function LoginSection() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left panel — branding (hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-12 flex-col justify-between">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-violet-600 to-violet-800 p-12 flex-col justify-between">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="h-9 w-9 rounded-xl bg-white/20 flex items-center justify-center">
             <Store className="h-5 w-5 text-white" />
@@ -64,7 +64,7 @@ export function LoginSection() {
           <Heading as="h1" size="3xl" className="text-white leading-tight">
             Welcome back to ShopHub
           </Heading>
-          <Paragraph size="lg" className="text-blue-100">
+          <Paragraph size="lg" className="text-violet-100">
             Sign in to access your orders, saved items, and a personalised shopping experience.
           </Paragraph>
         </div>
@@ -77,7 +77,7 @@ export function LoginSection() {
           ].map(({ value, label }) => (
             <div key={label} className="bg-white/10 rounded-xl p-4">
               <p className="text-2xl font-bold text-white">{value}</p>
-              <p className="text-xs text-blue-200 mt-0.5">{label}</p>
+              <p className="text-xs text-violet-200 mt-0.5">{label}</p>
             </div>
           ))}
         </div>
@@ -88,7 +88,7 @@ export function LoginSection() {
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-violet-600 flex items-center justify-center">
               <Store className="h-4 w-4 text-white" />
             </div>
             <span className="font-bold text-slate-900 text-lg">ShopHub</span>
@@ -97,7 +97,7 @@ export function LoginSection() {
           <Heading as="h2" size="2xl" className="mb-1">Sign in</Heading>
           <Paragraph variant="muted" className="mb-8">
             Don&apos;t have an account?{" "}
-            <Link href="/auth/signup" className="text-blue-600 hover:underline font-medium">
+            <Link href="/auth/signup" className="text-violet-600 hover:underline font-medium">
               Create one
             </Link>
           </Paragraph>
@@ -140,7 +140,7 @@ export function LoginSection() {
             />
 
             <div className="flex justify-end">
-              <Link href="#" className="text-xs text-blue-600 hover:underline">
+              <Link href="#" className="text-xs text-violet-600 hover:underline">
                 Forgot password?
               </Link>
             </div>

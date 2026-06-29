@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
@@ -77,17 +77,17 @@ function StatusTimeline({ status }: { status: OrderStatus }) {
         return (
           <div key={step.status} className="flex-1 flex flex-col items-center">
             <div className="flex items-center w-full">
-              {i > 0 && <div className={`flex-1 h-0.5 ${done || active ? "bg-blue-500" : "bg-slate-200"}`} />}
+              {i > 0 && <div className={`flex-1 h-0.5 ${done || active ? "bg-violet-500" : "bg-slate-200"}`} />}
               <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 transition-colors
                 ${done   ? "bg-green-500 text-white"
-                : active ? "bg-blue-600 text-white ring-3 ring-blue-100"
+                : active ? "bg-violet-600 text-white ring-3 ring-violet-100"
                 :          "bg-slate-100 text-slate-400"}`}
               >
                 {done ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
               </div>
-              {i < TIMELINE.length - 1 && <div className={`flex-1 h-0.5 ${done ? "bg-blue-500" : "bg-slate-200"}`} />}
+              {i < TIMELINE.length - 1 && <div className={`flex-1 h-0.5 ${done ? "bg-violet-500" : "bg-slate-200"}`} />}
             </div>
-            <Caption className={`mt-1.5 text-center text-[10px] sm:text-xs ${active ? "text-blue-600 font-semibold" : done ? "text-green-600" : "text-slate-400"}`}>
+            <Caption className={`mt-1.5 text-center text-[10px] sm:text-xs ${active ? "text-violet-600 font-semibold" : done ? "text-green-600" : "text-slate-400"}`}>
               {step.label}
             </Caption>
           </div>

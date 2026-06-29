@@ -1,4 +1,4 @@
-import { formatPrice } from "@/lib/utils";
+﻿import { formatPrice } from "@/lib/utils";
 import { Divider } from "@/custom-components/ui/Divider";
 import { Paragraph } from "@/custom-components/ui/Typography";
 
@@ -19,13 +19,13 @@ export function CartSummary({ subtotal, itemCount }: CartSummaryProps) {
     <div className="space-y-3">
       {/* Free shipping progress */}
       {subtotal < SHIPPING_THRESHOLD && (
-        <div className="p-3 rounded-lg bg-blue-50 border border-blue-100">
-          <Paragraph size="xs" className="text-blue-700 mb-2">
+        <div className="p-3 rounded-lg bg-violet-50 border border-violet-100">
+          <Paragraph size="xs" className="text-violet-700 mb-2">
             Add <strong>{formatPrice(remaining)}</strong> more for free shipping
           </Paragraph>
-          <div className="h-1.5 bg-blue-100 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-violet-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-500 rounded-full transition-all duration-300"
+              className="h-full bg-violet-500 rounded-full transition-all duration-300"
               style={{ width: `${Math.min((subtotal / SHIPPING_THRESHOLD) * 100, 100)}%` }}
             />
           </div>

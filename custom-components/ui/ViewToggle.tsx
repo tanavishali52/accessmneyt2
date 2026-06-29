@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ export function ViewToggle({ view, onChange, className }: ViewToggleProps) {
           className={cn(
             "flex items-center justify-center h-9 w-9 transition-colors",
             view === "grid"
-              ? "bg-blue-600 text-white"
+              ? "bg-violet-600 text-white"
               : "text-slate-500 hover:bg-slate-50"
           )}
           aria-label="Grid view"
@@ -38,7 +38,7 @@ export function ViewToggle({ view, onChange, className }: ViewToggleProps) {
           className={cn(
             "flex items-center justify-center h-9 w-9 transition-colors border-l border-slate-200",
             view === "list"
-              ? "bg-blue-600 text-white"
+              ? "bg-violet-600 text-white"
               : "text-slate-500 hover:bg-slate-50"
           )}
           aria-label="List view"

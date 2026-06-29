@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReduxProvider } from "@/custom-components/providers/ReduxProvider";
 import { AuthProvider } from "@/custom-components/providers/AuthProvider";
+import { ThemeProvider } from "@/custom-components/providers/ThemeProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,10 +22,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} h-full`}>
+    <html lang="en" className={`${inter.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-[var(--color-bg)] text-[var(--color-text)]">
         <ReduxProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <ThemeProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </ThemeProvider>
         </ReduxProvider>
       </body>
     </html>

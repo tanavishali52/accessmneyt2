@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -43,12 +43,12 @@ function StepIndicator({ current }: { current: number }) {
             <div className="flex flex-col items-center gap-1.5">
               <div className={`h-9 w-9 rounded-full flex items-center justify-center transition-colors
                 ${done   ? "bg-green-500 text-white"
-                : active ? "bg-blue-600 text-white ring-4 ring-blue-100"
+                : active ? "bg-violet-600 text-white ring-4 ring-violet-100"
                 :          "bg-slate-100 text-slate-400"}`}
               >
                 {done ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
               </div>
-              <span className={`text-xs font-medium hidden sm:block ${active ? "text-blue-600" : done ? "text-green-600" : "text-slate-400"}`}>
+              <span className={`text-xs font-medium hidden sm:block ${active ? "text-violet-600" : done ? "text-green-600" : "text-slate-400"}`}>
                 {step.label}
               </span>
             </div>
@@ -245,7 +245,7 @@ export function CheckoutSection() {
           {step === 1 && (
             <Card padding="lg">
               <div className="flex items-center gap-2.5 mb-6">
-                <MapPin className="h-5 w-5 text-blue-600 shrink-0" />
+                <MapPin className="h-5 w-5 text-violet-600 shrink-0" />
                 <Heading size="lg">Shipping address</Heading>
               </div>
               <form onSubmit={shippingForm.handleSubmit(handleShippingSubmit)} className="space-y-4">
@@ -267,7 +267,7 @@ export function CheckoutSection() {
           {step === 2 && (
             <Card padding="lg">
               <div className="flex items-center gap-2.5 mb-2">
-                <CreditCard className="h-5 w-5 text-blue-600 shrink-0" />
+                <CreditCard className="h-5 w-5 text-violet-600 shrink-0" />
                 <Heading size="lg">Payment details</Heading>
               </div>
 
@@ -300,7 +300,7 @@ export function CheckoutSection() {
                       <p className="font-medium text-slate-900">{shipping.fullName}</p>
                       <p>{shipping.address}, {shipping.city}, {shipping.postcode}</p>
                     </div>
-                    <button type="button" onClick={() => setStep(1)} className="ml-auto text-xs text-blue-600 hover:underline shrink-0">Edit</button>
+                    <button type="button" onClick={() => setStep(1)} className="ml-auto text-xs text-violet-600 hover:underline shrink-0">Edit</button>
                   </div>
                 )}
 

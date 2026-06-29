@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -71,7 +71,7 @@ export function SignupSection() {
           <ul className="space-y-3">
             {PERKS.map((perk) => (
               <li key={perk} className="flex items-center gap-3">
-                <span className="h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+                <span className="h-5 w-5 rounded-full bg-violet-500 flex items-center justify-center shrink-0">
                   <Check className="h-3 w-3 text-white" />
                 </span>
                 <span className="text-slate-300 text-sm">{perk}</span>
@@ -90,7 +90,7 @@ export function SignupSection() {
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-violet-600 flex items-center justify-center">
               <Store className="h-4 w-4 text-white" />
             </div>
             <span className="font-bold text-slate-900 text-lg">ShopHub</span>
@@ -99,7 +99,7 @@ export function SignupSection() {
           <Heading as="h2" size="2xl" className="mb-1">Create account</Heading>
           <Paragraph variant="muted" className="mb-8">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-blue-600 hover:underline font-medium">
+            <Link href="/auth/login" className="text-violet-600 hover:underline font-medium">
               Sign in
             </Link>
           </Paragraph>

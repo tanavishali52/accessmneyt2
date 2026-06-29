@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -174,7 +174,7 @@ export function CatalogSection() {
           >
             Filters
             {activeFilterCount > 0 && (
-              <span className="ml-1 h-5 w-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="ml-1 h-5 w-5 rounded-full bg-violet-600 text-white text-[10px] font-bold flex items-center justify-center">
                 {activeFilterCount}
               </span>
             )}
@@ -189,7 +189,7 @@ export function CatalogSection() {
       {activeFilterCount > 0 && (
         <div className="flex flex-wrap items-center gap-2 mb-4">
           {search && (
-            <span className="flex items-center gap-1.5 text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-full">
+            <span className="flex items-center gap-1.5 text-xs bg-violet-50 text-violet-700 border border-violet-200 px-2.5 py-1 rounded-full">
               Search: &quot;{search}&quot;
               <button onClick={() => handleSearch("")}><X className="h-3 w-3" /></button>
             </span>

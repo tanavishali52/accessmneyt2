@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { cn } from "@/lib/utils";
 
@@ -27,9 +27,9 @@ export function Toggle({ checked, onChange, label, disabled = false, size = "md"
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={cn(
-          "relative inline-flex shrink-0 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+          "relative inline-flex shrink-0 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
           s.track,
-          checked ? "bg-blue-600" : "bg-slate-200"
+          checked ? "bg-violet-600" : "bg-slate-200"
         )}
       >
         <span

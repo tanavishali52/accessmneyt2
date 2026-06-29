@@ -26,18 +26,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && <Label htmlFor={inputId} required={required}>{label}</Label>}
         <div className="relative flex items-center">
           {leftIcon && (
-            <span className="absolute left-3 text-slate-400 pointer-events-none">{leftIcon}</span>
+            <span className="absolute left-3 text-zinc-400 pointer-events-none">{leftIcon}</span>
           )}
           <input
             ref={ref}
             id={inputId}
             className={cn(
-              "w-full rounded-lg border bg-white text-slate-900 placeholder:text-slate-400",
-              "transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+              "w-full rounded-xl border",
+              "bg-white dark:bg-zinc-900",
+              "text-zinc-900 dark:text-zinc-100",
+              "placeholder:text-zinc-400 dark:placeholder:text-zinc-600",
+              "transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent",
               "disabled:cursor-not-allowed disabled:opacity-50",
-              // Prevent iOS zoom on focus
               "text-[16px] sm:text-sm",
-              error ? "border-red-400 focus:ring-red-400" : "border-slate-200",
+              error
+                ? "border-red-400 dark:border-red-600 focus:ring-red-400"
+                : "border-zinc-200 dark:border-zinc-700",
               leftIcon && "pl-9",
               rightIcon && "pr-9",
               sizes[inputSize],
@@ -46,11 +50,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightIcon && (
-            <span className="absolute right-3 text-slate-400">{rightIcon}</span>
+            <span className="absolute right-3 text-zinc-400">{rightIcon}</span>
           )}
         </div>
         {error && <p className="text-xs text-red-500">{error}</p>}
-        {hint && !error && <p className="text-xs text-slate-400">{hint}</p>}
+        {hint && !error && <p className="text-xs text-zinc-400">{hint}</p>}
       </div>
     );
   }

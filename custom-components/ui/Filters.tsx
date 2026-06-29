@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp, SlidersHorizontal, X } from "lucide-react";
@@ -95,7 +95,7 @@ export function PriceRangeFilter({ min, max, value, onChange }: PriceRangeFilter
           max={value[1]}
           value={value[0]}
           onChange={(e) => onChange([Number(e.target.value), value[1]])}
-          className="w-full h-10 text-sm rounded-lg border border-slate-200 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-10 text-sm rounded-lg border border-slate-200 px-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
           placeholder="Min"
         />
         <span className="text-slate-400 text-sm shrink-0">—</span>
@@ -105,7 +105,7 @@ export function PriceRangeFilter({ min, max, value, onChange }: PriceRangeFilter
           max={max}
           value={value[1]}
           onChange={(e) => onChange([value[0], Number(e.target.value)])}
-          className="w-full h-10 text-sm rounded-lg border border-slate-200 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full h-10 text-sm rounded-lg border border-slate-200 px-2 focus:outline-none focus:ring-2 focus:ring-violet-500"
           placeholder="Max"
         />
       </div>
@@ -133,7 +133,7 @@ export function FilterPanel({ children, onClear, activeCount = 0, className }: F
           <SlidersHorizontal className="h-4 w-4 text-slate-500 shrink-0" />
           <Heading size="sm">Filters</Heading>
           {activeCount > 0 && (
-            <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-semibold shrink-0">
+            <span className="h-5 w-5 rounded-full bg-violet-600 text-white text-xs flex items-center justify-center font-semibold shrink-0">
               {activeCount}
             </span>
           )}

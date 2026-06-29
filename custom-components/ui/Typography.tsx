@@ -17,20 +17,22 @@ export function Heading({
   ...props
 }: HeadingProps) {
   const sizes = {
-    xs: "text-xs font-semibold",
-    sm: "text-sm font-semibold",
-    md: "text-base font-semibold",
-    lg: "text-lg font-semibold",
-    xl: "text-xl font-bold",
-    "2xl": "text-2xl font-bold",
-    "3xl": "text-3xl font-bold",
+    xs:   "text-xs font-semibold",
+    sm:   "text-sm font-semibold",
+    md:   "text-base font-semibold",
+    lg:   "text-lg font-semibold",
+    xl:   "text-xl font-bold",
+    "2xl":"text-2xl font-bold",
+    "3xl":"text-3xl font-bold",
   };
 
   return (
     <Tag
       className={cn(
         sizes[size],
-        muted ? "text-slate-500" : "text-slate-900",
+        muted
+          ? "text-zinc-500 dark:text-zinc-400"
+          : "text-zinc-900 dark:text-zinc-50",
         className
       )}
       {...props}
@@ -61,16 +63,13 @@ export function Paragraph({
     lg: "text-lg",
   };
   const variants = {
-    default: "text-slate-700",
-    muted: "text-slate-500",
-    subtle: "text-slate-400",
+    default: "text-zinc-700 dark:text-zinc-300",
+    muted:   "text-zinc-500 dark:text-zinc-400",
+    subtle:  "text-zinc-400 dark:text-zinc-500",
   };
 
   return (
-    <p
-      className={cn(sizes[size], variants[variant], "leading-relaxed", className)}
-      {...props}
-    >
+    <p className={cn(sizes[size], variants[variant], "leading-relaxed", className)} {...props}>
       {children}
     </p>
   );
@@ -85,7 +84,7 @@ interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
 export function Label({ required, className, children, ...props }: LabelProps) {
   return (
     <label
-      className={cn("text-sm font-medium text-slate-700", className)}
+      className={cn("text-sm font-medium text-zinc-700 dark:text-zinc-300", className)}
       {...props}
     >
       {children}
@@ -96,16 +95,9 @@ export function Label({ required, className, children, ...props }: LabelProps) {
 
 // ─── Caption ─────────────────────────────────────────────────────────────────
 
-export function Caption({
-  className,
-  children,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement>) {
+export function Caption({ className, children, ...props }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
-    <span
-      className={cn("text-xs text-slate-400", className)}
-      {...props}
-    >
+    <span className={cn("text-xs text-zinc-400 dark:text-zinc-500", className)} {...props}>
       {children}
     </span>
   );

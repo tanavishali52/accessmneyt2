@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
@@ -31,14 +31,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const base =
-      "inline-flex items-center justify-center gap-2 font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer select-none shrink-0";
+      "inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 cursor-pointer select-none shrink-0 active:scale-[0.97]";
 
     const variants = {
-      primary:   "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 rounded-lg",
-      secondary: "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 active:bg-slate-100 rounded-lg",
-      ghost:     "text-slate-600 hover:bg-slate-100 active:bg-slate-200 rounded-lg",
-      danger:    "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 rounded-lg",
-      outline:   "border border-blue-600 text-blue-600 hover:bg-blue-50 active:bg-blue-100 rounded-lg",
+      primary:
+        "bg-violet-600 text-white hover:bg-violet-700 active:bg-violet-800 shadow-sm shadow-violet-600/25 hover:shadow-violet-600/40 rounded-xl",
+      secondary:
+        "bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700 active:bg-zinc-100 dark:active:bg-zinc-600 rounded-xl",
+      ghost:
+        "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:bg-zinc-200 dark:active:bg-zinc-700 rounded-xl",
+      danger:
+        "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm shadow-red-600/20 rounded-xl",
+      outline:
+        "border border-violet-600 text-violet-600 dark:text-violet-400 dark:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-950 active:bg-violet-100 rounded-xl",
     };
 
     // Touch-friendly minimum tap targets

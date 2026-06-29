@@ -15,21 +15,21 @@ export function Badge({
   ...props
 }: BadgeProps) {
   const variants = {
-    default: "bg-slate-100 text-slate-700",
-    success: "bg-green-100 text-green-700",
-    warning: "bg-amber-100 text-amber-700",
-    danger: "bg-red-100 text-red-700",
-    info: "bg-blue-100 text-blue-700",
-    outline: "border border-slate-200 text-slate-600 bg-transparent",
+    default: "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300",
+    success: "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400",
+    warning: "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400",
+    danger:  "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400",
+    info:    "bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-400",
+    outline: "border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 bg-transparent",
   };
 
   const dotColors = {
-    default: "bg-slate-500",
+    default: "bg-zinc-500",
     success: "bg-green-500",
     warning: "bg-amber-500",
-    danger: "bg-red-500",
-    info: "bg-blue-500",
-    outline: "bg-slate-400",
+    danger:  "bg-red-500",
+    info:    "bg-violet-500",
+    outline: "bg-zinc-400",
   };
 
   const sizes = {
@@ -48,9 +48,7 @@ export function Badge({
       {...props}
     >
       {dot && (
-        <span
-          className={cn("w-1.5 h-1.5 rounded-full shrink-0", dotColors[variant])}
-        />
+        <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", dotColors[variant])} />
       )}
       {children}
     </span>
