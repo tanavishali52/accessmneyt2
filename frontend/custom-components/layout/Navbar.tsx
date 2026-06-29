@@ -14,7 +14,9 @@ import { Divider } from "@/custom-components/ui/Divider";
 import { ThemeToggle } from "@/custom-components/ui/ThemeToggle";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
-import { openCart } from "@/store/slices/cartSlice";
+import { clearLocalCart, openCart } from "@/store/slices/cartSlice";
+import { useLogoutApiMutation } from "@/services/authService";
+import { baseApi } from "@/services/baseApi";
 
 const NAV_LINKS = [
   { label: "Home",       href: "/"     },
@@ -45,10 +47,16 @@ export function Navbar() {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const [logoutApi] = useLogoutApiMutation();
+
+  const handleLogout = async () => {
     setUserMenuOpen(false);
+    try { await logoutApi().unwrap(); } catch { /* token already invalid — proceed */ }
+    dispatch(logout());
+    dispatch(clearLocalCart());
+    dispatch(baseApi.util.resetApiState());
     router.push("/");
+    router.refresh();
   };
 
   return (

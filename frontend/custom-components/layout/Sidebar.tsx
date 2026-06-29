@@ -13,6 +13,8 @@ import { Badge } from "@/custom-components/ui/Badge";
 import { Divider } from "@/custom-components/ui/Divider";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
+import { useLogoutApiMutation } from "@/services/authService";
+import { baseApi } from "@/services/baseApi";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
@@ -29,9 +31,14 @@ export function Sidebar({ className }: SidebarProps) {
   const dispatch  = useAppDispatch();
   const { user }  = useAppSelector((s) => s.auth);
 
-  const handleLogout = () => {
+  const [logoutApi] = useLogoutApiMutation();
+
+  const handleLogout = async () => {
+    try { await logoutApi().unwrap(); } catch { /* proceed even if token already expired */ }
     dispatch(logout());
+    dispatch(baseApi.util.resetApiState());
     router.push("/auth/login");
+    router.refresh();
   };
 
   const NavLinks = ({ onNav }: { onNav?: () => void }) => (
