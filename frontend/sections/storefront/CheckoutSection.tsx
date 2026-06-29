@@ -121,6 +121,7 @@ function OrderSidebar({ items, subtotal }: { items: CartItem[]; subtotal: number
 // ─── Stripe card element styles ───────────────────────────────────────────────
 
 const CARD_ELEMENT_OPTIONS = {
+  hidePostalCode: true,
   style: {
     base: {
       fontSize: "15px",
@@ -134,6 +135,7 @@ const CARD_ELEMENT_OPTIONS = {
 };
 
 const CARD_ELEMENT_OPTIONS_LIGHT = {
+  hidePostalCode: true,
   style: {
     base: {
       fontSize: "15px",
