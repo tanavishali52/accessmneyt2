@@ -10,7 +10,7 @@ import {
   REGISTER,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import { baseApi } from "./api/baseApi";
+import { baseApi } from "@/services/baseApi";
 import authReducer from "./slices/authSlice";
 import cartReducer from "./slices/cartSlice";
 
