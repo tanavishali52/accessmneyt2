@@ -1,52 +1,26 @@
-﻿"use client";
+"use client";
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Package, MapPin, CreditCard, Check, Clock, Truck, Home, X } from "lucide-react";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
-import type { Order, OrderStatus } from "@/types";
+import type { OrderStatus } from "@/types";
 import { Badge } from "@/custom-components/ui/Badge";
 import { Card, CardHeader, CardBody } from "@/custom-components/ui/Card";
 import { Heading, Paragraph, Caption } from "@/custom-components/ui/Typography";
 import { Divider } from "@/custom-components/ui/Divider";
 import { Button } from "@/custom-components/ui/Button";
-
-// Same mock orders as history — Phase 6 replaces with API
-const MOCK_ORDERS: Order[] = [
-  {
-    _id: "ORD-MOCK001", userId: "user1",
-    items: [
-      { productId: "1", name: "Wireless Noise-Cancelling Headphones", price: 249.99, quantity: 1, imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop" },
-      { productId: "7", name: "Atomic Habits — James Clear",          price: 14.99,  quantity: 2, imageUrl: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=400&fit=crop" },
-    ],
-    shippingAddress: { fullName: "Jane Smith", address: "123 High St", city: "London", postcode: "SW1A 1AA", country: "GB" },
-    total: 279.97, status: "delivered", paymentStatus: "paid",
-    createdAt: "2024-10-20T14:00:00Z", updatedAt: "2024-10-24T10:00:00Z",
-  },
-  {
-    _id: "ORD-MOCK002", userId: "user1",
-    items: [{ productId: "6", name: "Running Trainers Pro", price: 144.99, quantity: 1, imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop" }],
-    shippingAddress: { fullName: "Jane Smith", address: "123 High St", city: "London", postcode: "SW1A 1AA", country: "GB" },
-    total: 149.98, status: "shipped", paymentStatus: "paid",
-    createdAt: "2024-11-01T09:30:00Z", updatedAt: "2024-11-03T08:00:00Z",
-  },
-  {
-    _id: "ORD-MOCK003", userId: "user1",
-    items: [{ productId: "9", name: "Ceramic Pour-Over Coffee Set", price: 64.99, quantity: 1, imageUrl: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop" }],
-    shippingAddress: { fullName: "Jane Smith", address: "123 High St", city: "London", postcode: "SW1A 1AA", country: "GB" },
-    total: 64.99, status: "processing", paymentStatus: "paid",
-    createdAt: "2024-11-05T11:00:00Z", updatedAt: "2024-11-05T11:00:00Z",
-  },
-];
+import { Skeleton } from "@/custom-components/ui/Skeleton";
+import { useGetOrderByIdQuery } from "@/services/ordersService";
 
 // ─── Status timeline ──────────────────────────────────────────────────────────
 
 const TIMELINE: { status: OrderStatus; label: string; icon: React.ElementType }[] = [
-  { status: "pending",    label: "Order placed",   icon: Clock  },
-  { status: "processing", label: "Processing",     icon: Package },
-  { status: "shipped",    label: "Shipped",        icon: Truck  },
-  { status: "delivered",  label: "Delivered",      icon: Home   },
+  { status: "pending",    label: "Order placed", icon: Clock   },
+  { status: "processing", label: "Processing",   icon: Package },
+  { status: "shipped",    label: "Shipped",      icon: Truck   },
+  { status: "delivered",  label: "Delivered",    icon: Home    },
 ];
 
 const STATUS_ORDER: Record<OrderStatus, number> = {
@@ -66,7 +40,6 @@ function StatusTimeline({ status }: { status: OrderStatus }) {
       </div>
     );
   }
-
   const currentIdx = STATUS_ORDER[status];
   return (
     <div className="flex items-start gap-0">
@@ -102,9 +75,21 @@ function StatusTimeline({ status }: { status: OrderStatus }) {
 export function OrderDetailSection() {
   const params  = useParams();
   const orderId = params?.id as string;
-  const order   = MOCK_ORDERS.find((o) => o._id === orderId);
 
-  if (!order) {
+  const { data: order, isLoading, isError } = useGetOrderByIdQuery(orderId, { skip: !orderId });
+
+  if (isLoading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-4">
+        <Skeleton height="16px" className="w-28 mb-2" />
+        <Skeleton height="28px" className="w-56" />
+        <Skeleton height="80px" className="w-full" rounded="xl" />
+        <Skeleton height="160px" className="w-full" rounded="xl" />
+      </div>
+    );
+  }
+
+  if (isError || !order) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
         <Heading size="xl" className="mb-3">Order not found</Heading>
@@ -113,19 +98,18 @@ export function OrderDetailSection() {
     );
   }
 
-  const shippingCost = order.total - order.items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const itemsSubtotal = order.items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const shippingCost  = Math.max(0, order.total - itemsSubtotal);
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-6">
-      {/* Back */}
       <Link href="/orders" className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-50 transition-colors">
         <ChevronLeft className="h-4 w-4" /> Back to orders
       </Link>
 
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <Heading as="h1" size="xl" className="mb-1">{order._id}</Heading>
+          <Heading as="h1" size="xl" className="mb-1">#{order._id.slice(-8).toUpperCase()}</Heading>
           <Caption>Placed on {formatDate(order.createdAt)}</Caption>
         </div>
         <Badge variant={STATUS_BADGE[order.status]} size="md" dot>
@@ -133,12 +117,10 @@ export function OrderDetailSection() {
         </Badge>
       </div>
 
-      {/* Status timeline */}
       <Card padding="md">
         <StatusTimeline status={order.status} />
       </Card>
 
-      {/* Items */}
       <Card padding="none">
         <CardHeader className="px-4 py-3">
           <Heading size="sm">Items ordered</Heading>
@@ -163,9 +145,7 @@ export function OrderDetailSection() {
         </CardBody>
       </Card>
 
-      {/* Summary + Addresses grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Order total */}
         <Card padding="md" className="space-y-2">
           <div className="flex items-center gap-2 mb-3">
             <CreditCard className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
@@ -173,17 +153,15 @@ export function OrderDetailSection() {
           </div>
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
-              <span>Subtotal</span>
-              <span>{formatPrice(order.total - Math.max(0, shippingCost))}</span>
+              <span>Subtotal</span><span>{formatPrice(itemsSubtotal)}</span>
             </div>
             <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
               <span>Shipping</span>
-              <span className={shippingCost <= 0 ? "text-green-600" : ""}>{shippingCost <= 0 ? "Free" : formatPrice(shippingCost)}</span>
+              <span className={shippingCost === 0 ? "text-green-600" : ""}>{shippingCost === 0 ? "Free" : formatPrice(shippingCost)}</span>
             </div>
             <Divider />
             <div className="flex justify-between font-bold text-zinc-900 dark:text-zinc-50">
-              <span>Total</span>
-              <span>{formatPrice(order.total)}</span>
+              <span>Total</span><span>{formatPrice(order.total)}</span>
             </div>
             <div className="flex justify-between text-zinc-500 dark:text-zinc-400 text-xs">
               <span>Payment</span>
@@ -192,7 +170,6 @@ export function OrderDetailSection() {
           </div>
         </Card>
 
-        {/* Shipping address */}
         <Card padding="md">
           <div className="flex items-center gap-2 mb-3">
             <MapPin className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
