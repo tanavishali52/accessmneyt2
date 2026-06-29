@@ -42,6 +42,29 @@ const HERO_IMAGES = [
   { src: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop", bg: "bg-amber-100 dark:bg-amber-950/60", label: "Sports" },
 ];
 
+// Each card gets a completely different continuous animation
+const HERO_ANIMATIONS = [
+  // Card 0 — breathe / morph scale (Electronics)
+  {
+    animate: { scale: [1, 1.06, 0.97, 1.04, 1], rotate: [0, -1.5, 0.5, -0.5, 0] },
+    transition: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+  },
+  // Card 1 — slow 3-D tilt swing (Clothing)
+  {
+    animate: { rotateY: [0, 12, 0, -12, 0], y: [0, -10, 0] },
+    transition: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.4 },
+  },
+  // Card 2 — glitch jump (Sports)
+  {
+    animate: {
+      x: [0, -3, 4, -2, 0],
+      y: [0, -14, -6, -18, 0],
+      skewX: [0, -2, 1.5, -1, 0],
+    },
+    transition: { duration: 4, repeat: Infinity, ease: [0.36, 0.07, 0.19, 0.97], delay: 0.8 },
+  },
+];
+
 // ─── Category Carousel ────────────────────────────────────────────────────────
 
 function CategoryCarousel({ category }: { category: string }) {
@@ -113,7 +136,7 @@ export function HomeSection() {
     <div className="w-full">
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 py-16 lg:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-white to-zinc-50 dark:from-transparent dark:via-transparent dark:to-transparent py-16 lg:py-24">
         {/* Background orbs */}
         <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-violet-200/40 dark:bg-violet-900/20 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-20 right-0 w-80 h-80 rounded-full bg-blue-200/30 dark:bg-blue-900/20 blur-3xl pointer-events-none" />
@@ -168,34 +191,77 @@ export function HomeSection() {
 
             {/* Right: floating product cards */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              variants={{
+                hidden: {},
+                show: { transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
+              }}
+              initial="hidden"
+              animate="show"
               className="relative w-full max-w-sm lg:max-w-md h-80 lg:h-96 shrink-0 hidden sm:block"
             >
               {HERO_IMAGES.map((img, i) => (
-                <div
+                <motion.div
                   key={i}
-                  className={`absolute ${i === 0 ? "top-0 left-6 w-40 h-44" : i === 1 ? "top-6 right-0 w-44 h-48" : "bottom-0 left-0 w-44 h-44"} rounded-2xl overflow-hidden border-4 border-white dark:border-zinc-800 shadow-xl ${img.bg}`}
+                  variants={{
+                    hidden: {
+                      opacity: 0,
+                      scale: 0.7,
+                      y: i === 0 ? -40 : i === 1 ? 40 : 0,
+                      x: i === 2 ? -40 : 0,
+                      rotate: i === 1 ? 15 : i === 2 ? -10 : 0,
+                    },
+                    show: {
+                      opacity: 1, scale: 1, y: 0, x: 0, rotate: 0,
+                      transition: { type: "spring", stiffness: 200, damping: 18, delay: i * 0.18 },
+                    },
+                  }}
+                  whileHover={{ scale: 1.08, zIndex: 20, transition: { type: "spring", stiffness: 320, damping: 16 } }}
+                  className={`absolute ${i === 0 ? "top-0 left-6 w-40 h-44" : i === 1 ? "top-6 right-0 w-44 h-48" : "bottom-0 left-0 w-44 h-44"} cursor-pointer`}
                   style={{ zIndex: 3 - i }}
                 >
-                  <Image src={img.src} alt={img.label} fill className="object-cover" sizes="200px" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                  <span className="absolute bottom-2 left-2 text-[10px] font-bold text-white uppercase tracking-wider">{img.label}</span>
-                </div>
+                  <motion.div
+                    animate={HERO_ANIMATIONS[i].animate}
+                    transition={HERO_ANIMATIONS[i].transition}
+                    className={`relative w-full h-full rounded-2xl overflow-hidden border-4 border-white dark:border-zinc-800 shadow-xl ${img.bg}`}
+                    style={{ transformStyle: "preserve-3d" }}
+                  >
+                    <Image src={img.src} alt={img.label} fill className="object-cover" sizes="200px" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    <span className="absolute bottom-2 left-2 text-[10px] font-bold text-white uppercase tracking-wider">{img.label}</span>
+                  </motion.div>
+                </motion.div>
               ))}
               {/* Floating badge */}
-              <div className="absolute bottom-8 right-4 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 rounded-xl px-3 py-2 shadow-xl z-10">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1, y: [0, -7, 0] }}
+                transition={{
+                  opacity: { duration: 0.4, delay: 0.8 },
+                  scale: { type: "spring", stiffness: 300, damping: 14, delay: 0.8 },
+                  y: { duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 1 },
+                }}
+                whileHover={{ scale: 1.08, rotate: -2 }}
+                className="absolute bottom-8 right-4 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 rounded-xl px-3 py-2 shadow-xl z-10 cursor-default"
+              >
                 <p className="text-[10px] font-semibold uppercase tracking-wide opacity-70">New drops weekly</p>
-                <p className="text-sm font-extrabold flex items-center gap-1">Play-ready fits ⚡</p>
-              </div>
+                <p className="text-sm font-extrabold flex items-center gap-1">
+                  Play-ready fits
+                  <motion.span
+                    animate={{ rotate: [0, 18, -12, 0], scale: [1, 1.25, 1] }}
+                    transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.2 }}
+                    className="inline-block"
+                  >
+                    ⚡
+                  </motion.span>
+                </p>
+              </motion.div>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* ── QUICK SHOP ────────────────────────────────────────────────────── */}
-      <section className="bg-zinc-50 dark:bg-zinc-900/50 py-12">
+      <section className="bg-zinc-50 dark:bg-white/[0.03] py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-6">
             <div>
@@ -210,28 +276,37 @@ export function HomeSection() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {QUICK_CATS.map(({ label, icon: Icon, bg, border, iconColor, href }) => (
-              <Link
-                key={label}
-                href={href ?? `/shop?category=${encodeURIComponent(label)}`}
-                className={`group ${bg} border ${border} rounded-2xl p-4 flex flex-col gap-3 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
-              >
-                <div className="flex items-center justify-between">
-                  <Icon className={`h-6 w-6 ${iconColor}`} />
-                  <ArrowRight className="h-4 w-4 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" />
-                </div>
-                <div>
-                  <p className="text-sm font-extrabold text-zinc-900 dark:text-zinc-50 uppercase tracking-tight leading-tight">{label}</p>
-                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                    {label === "Sale" ? "Up to 50% off" : "New arrivals"}
-                  </p>
-                  <p className="text-[11px] font-semibold text-violet-600 dark:text-violet-400 mt-2 uppercase tracking-wide">
-                    Tap to explore →
-                  </p>
-                </div>
-              </Link>
-            ))}
+          {/* Marquee — cards scroll right-to-left, pause on hover. The list is
+              rendered twice so translateX(-50%) loops seamlessly. */}
+          <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
+            <div className="flex w-max animate-marquee">
+              {[...QUICK_CATS, ...QUICK_CATS].map(({ label, icon: Icon, bg, border, iconColor, href }, i) => {
+                const isClone = i >= QUICK_CATS.length;
+                return (
+                  <Link
+                    key={`${label}-${i}`}
+                    href={href ?? `/shop?category=${encodeURIComponent(label)}`}
+                    aria-hidden={isClone}
+                    tabIndex={isClone ? -1 : undefined}
+                    className={`group ${bg} border ${border} rounded-2xl p-4 flex flex-col gap-3 w-48 shrink-0 mr-3 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <Icon className={`h-6 w-6 ${iconColor}`} />
+                      <ArrowRight className="h-4 w-4 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-extrabold text-zinc-900 dark:text-zinc-50 uppercase tracking-tight leading-tight">{label}</p>
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        {label === "Sale" ? "Up to 50% off" : "New arrivals"}
+                      </p>
+                      <p className="text-[11px] font-semibold text-violet-600 dark:text-violet-400 mt-2 uppercase tracking-wide">
+                        Tap to explore →
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
@@ -268,7 +343,7 @@ export function HomeSection() {
       </section>
 
       {/* ── TRUST BADGES ──────────────────────────────────────────────────── */}
-      <section className="border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 py-10">
+      <section className="border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-transparent py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-zinc-100 dark:divide-zinc-800">
             {TRUST.map(({ icon: Icon, title, detail }) => (
