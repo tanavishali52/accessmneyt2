@@ -1,5 +1,5 @@
 import { baseApi } from "./baseApi";
-import type { Product, PaginatedResponse, ProductQueryParams } from "@/types";
+import type { Product, PaginatedResponse, ProductQueryParams, CreateProductPayload, UpdateProductPayload } from "@/types";
 
 export const productsService = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -33,6 +33,21 @@ export const productsService = baseApi.injectEndpoints({
       }),
       providesTags: [{ type: "Product", id: "RELATED" }],
     }),
+
+    createProduct: build.mutation<Product, CreateProductPayload>({
+      query: (body) => ({ url: "/products", method: "POST", body }),
+      invalidatesTags: [{ type: "Product", id: "LIST" }],
+    }),
+
+    updateProduct: build.mutation<Product, { id: string; data: UpdateProductPayload }>({
+      query: ({ id, data }) => ({ url: `/products/${id}`, method: "PUT", body: data }),
+      invalidatesTags: (_r, _e, { id }) => [{ type: "Product", id }, { type: "Product", id: "LIST" }],
+    }),
+
+    deleteProduct: build.mutation<void, string>({
+      query: (id) => ({ url: `/products/${id}`, method: "DELETE" }),
+      invalidatesTags: (_r, _e, id) => [{ type: "Product", id }, { type: "Product", id: "LIST" }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -41,4 +56,7 @@ export const {
   useGetProductsQuery,
   useGetProductByIdQuery,
   useGetRelatedProductsQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
 } = productsService;

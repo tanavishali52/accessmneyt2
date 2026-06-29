@@ -39,8 +39,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
     // user/admin: handled by cartService in ProductDetailSection
   };
 
-  const isLowStock = product.stock > 0 && product.stock <= 5;
-  const isOutOfStock = product.stock === 0;
+  const isLowStock    = product.stock > 0 && product.stock <= 5;
+  const isOutOfStock  = product.stock === 0;
+  const discountPct   = product.originalPrice
+    ? Math.round((1 - product.price / product.originalPrice) * 100)
+    : null;
 
   return (
     <Link href={`/products/${product._id}`} className={cn("group block", className)}>
@@ -56,8 +59,13 @@ export function ProductCard({ product, className }: ProductCardProps) {
           />
           {/* Badges */}
           <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
+            {discountPct && (
+              <span className="bg-red-600 text-white text-[11px] font-bold px-2 py-0.5 rounded">
+                -{discountPct}%
+              </span>
+            )}
             {isOutOfStock && <Badge variant="danger" size="sm">Out of stock</Badge>}
-            {isLowStock && <Badge variant="warning" size="sm">Only {product.stock} left</Badge>}
+            {isLowStock && !discountPct && <Badge variant="warning" size="sm">Only {product.stock} left</Badge>}
           </div>
           {/* Quick view overlay */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 flex items-center justify-center">
@@ -74,7 +82,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
             {product.name}
           </h3>
           <div className="flex items-center justify-between gap-2 mt-auto pt-2">
-            <span className="text-base font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(product.price)}</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(product.price)}</span>
+              {product.originalPrice && (
+                <span className="text-xs text-zinc-400 line-through">{formatPrice(product.originalPrice)}</span>
+              )}
+            </div>
             <Button
               variant="primary"
               size="sm"

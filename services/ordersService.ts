@@ -1,5 +1,5 @@
 import { baseApi } from "./baseApi";
-import type { Order, CreateOrderPayload } from "@/types";
+import type { Order, CreateOrderPayload, UpdateOrderStatusPayload } from "@/types";
 
 export const ordersService = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -20,8 +20,27 @@ export const ordersService = baseApi.injectEndpoints({
       query: (id) => `/orders/${id}`,
       providesTags: (_r, _e, id) => [{ type: "Order", id }],
     }),
+
+    getAllOrders: build.query<Order[], void>({
+      query: () => "/orders",
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ _id }) => ({ type: "Order" as const, id: _id })), { type: "Order", id: "ADMIN_LIST" }]
+          : [{ type: "Order", id: "ADMIN_LIST" }],
+    }),
+
+    updateOrderStatus: build.mutation<Order, { id: string; data: UpdateOrderStatusPayload }>({
+      query: ({ id, data }) => ({ url: `/orders/${id}/status`, method: "PATCH", body: data }),
+      invalidatesTags: (_r, _e, { id }) => [{ type: "Order", id }, { type: "Order", id: "ADMIN_LIST" }, { type: "Order", id: "LIST" }],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useCreateOrderMutation, useGetOrdersQuery, useGetOrderByIdQuery } = ordersService;
+export const {
+  useCreateOrderMutation,
+  useGetOrdersQuery,
+  useGetOrderByIdQuery,
+  useGetAllOrdersQuery,
+  useUpdateOrderStatusMutation,
+} = ordersService;

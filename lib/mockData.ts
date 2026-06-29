@@ -4,7 +4,7 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     _id: "1", name: "Wireless Noise-Cancelling Headphones", category: "Electronics",
     description: "Premium over-ear headphones with active noise cancellation, 30-hour battery life, and Hi-Res Audio support. Perfect for travel and work-from-home.",
-    price: 249.99, imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+    price: 179.99, originalPrice: 249.99, imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
     stock: 24, createdAt: "2024-10-01T10:00:00Z", updatedAt: "2024-10-01T10:00:00Z",
   },
   {
@@ -22,19 +22,19 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     _id: "4", name: "Men's Classic Oxford Shirt", category: "Clothing",
     description: "Tailored from 100% organic cotton. A wardrobe essential — sharp enough for the office, relaxed enough for weekends. Available in 6 colours.",
-    price: 54.99, imageUrl: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&h=400&fit=crop",
+    price: 34.99, originalPrice: 54.99, imageUrl: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&h=400&fit=crop",
     stock: 80, createdAt: "2024-10-10T10:00:00Z", updatedAt: "2024-10-10T10:00:00Z",
   },
   {
     _id: "5", name: "Women's Merino Wool Jumper", category: "Clothing",
     description: "Ultra-soft superfine merino wool. Temperature-regulating, odour-resistant, and incredibly lightweight. Sustainably sourced.",
-    price: 119.99, imageUrl: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&h=400&fit=crop",
+    price: 79.99, originalPrice: 119.99, imageUrl: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&h=400&fit=crop",
     stock: 35, createdAt: "2024-10-12T10:00:00Z", updatedAt: "2024-10-12T10:00:00Z",
   },
   {
     _id: "6", name: "Running Trainers Pro", category: "Sports",
     description: "Engineered for performance runners. Carbon-fibre plate, responsive foam midsole, and mesh upper for breathability. Drop: 8mm.",
-    price: 144.99, imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
+    price: 99.99, originalPrice: 144.99, imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
     stock: 28, createdAt: "2024-10-14T10:00:00Z", updatedAt: "2024-10-14T10:00:00Z",
   },
   {
@@ -52,7 +52,7 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     _id: "9", name: "Ceramic Pour-Over Coffee Set", category: "Home & Garden",
     description: "Hand-thrown ceramic dripper, carafe, and two mugs. The slow-coffee ritual, elevated. Dishwasher-safe glaze, microwave-safe.",
-    price: 64.99, imageUrl: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop",
+    price: 44.99, originalPrice: 64.99, imageUrl: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop",
     stock: 18, createdAt: "2024-10-17T10:00:00Z", updatedAt: "2024-10-17T10:00:00Z",
   },
   {
@@ -64,13 +64,13 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     _id: "11", name: "Yoga Mat Pro — 6mm", category: "Sports",
     description: "Non-slip natural rubber base, microfibre top layer. Excellent grip wet or dry. Includes alignment lines and carry strap. 183cm × 61cm.",
-    price: 74.99, imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop",
+    price: 49.99, originalPrice: 74.99, imageUrl: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop",
     stock: 45, createdAt: "2024-10-19T10:00:00Z", updatedAt: "2024-10-19T10:00:00Z",
   },
   {
     _id: "12", name: "Mechanical Keyboard TKL", category: "Electronics",
     description: "Tenkeyless layout with Cherry MX Brown switches. Hot-swappable PCB, per-key RGB, aluminium top case. Includes USB-C braided cable.",
-    price: 134.99, imageUrl: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&h=400&fit=crop",
+    price: 89.99, originalPrice: 134.99, imageUrl: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&h=400&fit=crop",
     stock: 22, createdAt: "2024-10-20T10:00:00Z", updatedAt: "2024-10-20T10:00:00Z",
   },
   {
@@ -118,7 +118,7 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     _id: "20", name: "Linen Duvet Cover Set — King", category: "Home & Garden",
     description: "100% stonewashed French linen. Breathable, softens with every wash. Includes duvet cover + 2 pillowcases. Available in 8 colours.",
-    price: 189.99, imageUrl: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=400&fit=crop",
+    price: 119.99, originalPrice: 189.99, imageUrl: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=400&fit=crop",
     stock: 14, createdAt: "2024-10-28T10:00:00Z", updatedAt: "2024-10-28T10:00:00Z",
   },
 ];

@@ -17,8 +17,9 @@ import { logout } from "@/store/slices/authSlice";
 import { openCart } from "@/store/slices/cartSlice";
 
 const NAV_LINKS = [
-  { label: "Shop",       href: "/" },
-  { label: "Categories", href: "/?view=categories" },
+  { label: "Home",       href: "/"     },
+  { label: "Shop",       href: "/shop" },
+  { label: "Sale",       href: "/sale" },
 ];
 
 export function Navbar() {
@@ -38,7 +39,7 @@ export function Navbar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/?q=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
       setMobileOpen(false);
     }

@@ -1,11 +1,15 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Mail, Lock, Store, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  Eye, EyeOff, Mail, Lock, Store, ArrowRight,
+  ShoppingBag, Shield, Zap, ChevronDown, ChevronUp,
+} from "lucide-react";
 import { loginSchema, type LoginFormValues } from "@/lib/validations";
 import { useLoginMutation } from "@/services/authService";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -15,16 +19,29 @@ import { Button } from "@/custom-components/ui/Button";
 import { RHFInput } from "@/custom-components/ui/RHF";
 import { Alert } from "@/custom-components/ui/Alert";
 import { Divider } from "@/custom-components/ui/Divider";
-import { Heading, Paragraph } from "@/custom-components/ui/Typography";
+
+// ─── Left panel feature pills ─────────────────────────────────────────────────
+
+const FEATURES = [
+  { icon: ShoppingBag, label: "Track orders in real time" },
+  { icon: Zap,         label: "Fast, seamless checkout" },
+  { icon: Shield,      label: "Secure & private by design" },
+];
+
+const STATS = [
+  { value: "500+", label: "Products" },
+  { value: "10k+", label: "Customers" },
+  { value: "4.8★", label: "Rating" },
+];
 
 export function LoginSection() {
   const [showPassword, setShowPassword] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
+  const [showDemo,     setShowDemo]     = useState(false);
+  const [apiError,     setApiError]     = useState<string | null>(null);
 
-  const router = useRouter();
+  const router   = useRouter();
   const dispatch = useAppDispatch();
   const localItems = useAppSelector((s) => s.cart.localItems);
-
   const [login, { isLoading }] = useLoginMutation();
 
   const { control, handleSubmit } = useForm<LoginFormValues>({
@@ -37,12 +54,8 @@ export function LoginSection() {
     try {
       const result = await login(values).unwrap();
       dispatch(setCredentials(result));
-      // If guest had local cart items, persist them before clearing
-      if (localItems.length > 0) {
-        dispatch(clearLocalCart());
-      }
-      const role = result.user.role;
-      router.push(role === "admin" ? "/admin/dashboard" : "/");
+      if (localItems.length > 0) dispatch(clearLocalCart());
+      router.push(result.user.role === "admin" ? "/admin/dashboard" : "/");
     } catch (err: unknown) {
       const error = err as { data?: { message?: string } };
       setApiError(error?.data?.message ?? "Invalid email or password. Please try again.");
@@ -50,57 +63,100 @@ export function LoginSection() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left panel — branding (hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-violet-600 to-violet-800 p-12 flex-col justify-between">
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-white dark:bg-zinc-900/20 flex items-center justify-center">
-            <Store className="h-5 w-5 text-white" />
-          </div>
-          <span className="font-bold text-white text-xl">ShopHub</span>
-        </Link>
+    <div className="min-h-screen flex bg-zinc-50 dark:bg-zinc-950">
 
-        <div className="space-y-4">
-          <Heading as="h1" size="3xl" className="text-white leading-tight">
-            Welcome back to ShopHub
-          </Heading>
-          <Paragraph size="lg" className="text-violet-100">
-            Sign in to access your orders, saved items, and a personalised shopping experience.
-          </Paragraph>
-        </div>
+      {/* ── Left panel ──────────────────────────────────────────────────────── */}
+      <div className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden flex-col">
+        {/* Gradient base */}
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-800" />
 
-        <div className="grid grid-cols-3 gap-4 text-center">
-          {[
-            { value: "500+", label: "Products" },
-            { value: "10k+", label: "Customers" },
-            { value: "4.8★", label: "Rating" },
-          ].map(({ value, label }) => (
-            <div key={label} className="bg-white dark:bg-zinc-900/10 rounded-xl p-4">
-              <p className="text-2xl font-bold text-white">{value}</p>
-              <p className="text-xs text-violet-200 mt-0.5">{label}</p>
+        {/* Decorative orbs */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-violet-500/30 blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-indigo-500/40 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-violet-400/20 blur-2xl" />
+
+        {/* Subtle grid overlay */}
+        <div className="absolute inset-0 opacity-10"
+          style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col h-full p-10 xl:p-14">
+
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center group-hover:bg-white/30 transition-colors">
+              <Store className="h-5 w-5 text-white" />
             </div>
-          ))}
+            <span className="font-bold text-white text-xl tracking-tight">ShopHub</span>
+          </Link>
+
+          {/* Main headline */}
+          <div className="mt-auto mb-10 space-y-5">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-medium text-white/90">Trusted by 10,000+ shoppers</span>
+            </div>
+
+            <h1 className="text-3xl xl:text-4xl font-bold text-white leading-tight">
+              Welcome back.<br />
+              <span className="text-violet-200">Good to see you.</span>
+            </h1>
+
+            <p className="text-violet-100/80 text-sm xl:text-base leading-relaxed max-w-sm">
+              Sign in to access your orders, wishlist, and a personalised shopping experience tailored just for you.
+            </p>
+
+            {/* Feature list */}
+            <ul className="space-y-2.5 pt-2">
+              {FEATURES.map(({ icon: Icon, label }) => (
+                <li key={label} className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-white/15 backdrop-blur-sm flex items-center justify-center shrink-0">
+                    <Icon className="h-3.5 w-3.5 text-white" />
+                  </div>
+                  <span className="text-sm text-violet-100">{label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-3">
+            {STATS.map(({ value, label }) => (
+              <div key={label} className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-3 text-center">
+                <p className="text-xl font-bold text-white">{value}</p>
+                <p className="text-[11px] text-violet-200 mt-0.5">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Right panel — form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-12 py-12">
-        <div className="w-full max-w-sm">
+      {/* ── Right panel — form ───────────────────────────────────────────────── */}
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-10 lg:py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="w-full max-w-[400px]"
+        >
           {/* Mobile logo */}
-          <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="h-8 w-8 rounded-lg bg-violet-600 flex items-center justify-center">
-              <Store className="h-4 w-4 text-white" />
+          <Link href="/" className="flex items-center gap-2.5 mb-8 lg:hidden">
+            <div className="h-9 w-9 rounded-xl bg-violet-600 flex items-center justify-center">
+              <Store className="h-4.5 w-4.5 text-white" />
             </div>
             <span className="font-bold text-zinc-900 dark:text-zinc-50 text-lg">ShopHub</span>
           </Link>
 
-          <Heading as="h2" size="2xl" className="mb-1">Sign in</Heading>
-          <Paragraph variant="muted" className="mb-8">
-            Don&apos;t have an account?{" "}
-            <Link href="/auth/signup" className="text-violet-600 hover:underline font-medium">
-              Create one
-            </Link>
-          </Paragraph>
+          {/* Heading */}
+          <div className="mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-zinc-50 mb-2">Sign in</h2>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              New to ShopHub?{" "}
+              <Link href="/auth/signup" className="text-violet-600 dark:text-violet-400 hover:underline font-semibold">
+                Create a free account
+              </Link>
+            </p>
+          </div>
 
           {apiError && (
             <Alert variant="danger" onClose={() => setApiError(null)} className="mb-5">
@@ -119,59 +175,87 @@ export function LoginSection() {
               leftIcon={<Mail className="h-4 w-4" />}
             />
 
-            <RHFInput
-              name="password"
-              control={control}
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              required
-              leftIcon={<Lock className="h-4 w-4" />}
-              rightIcon={
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 transition-colors"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              }
-            />
-
-            <div className="flex justify-end">
-              <Link href="#" className="text-xs text-violet-600 hover:underline">
-                Forgot password?
-              </Link>
+            <div className="space-y-1">
+              <RHFInput
+                name="password"
+                control={control}
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                required
+                leftIcon={<Lock className="h-4 w-4" />}
+                rightIcon={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                }
+              />
+              <div className="flex justify-end">
+                <Link href="#" className="text-xs text-violet-600 dark:text-violet-400 hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
             </div>
 
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              loading={isLoading}
+            <Button type="submit" variant="primary" size="lg" fullWidth loading={isLoading}
               rightIcon={<ArrowRight className="h-4 w-4" />}
+              className="mt-2"
             >
-              Sign in
+              Sign in to ShopHub
             </Button>
           </form>
 
-          <Divider label="or continue as" className="my-6" />
+          <Divider label="or" className="my-5" />
 
           <Link href="/">
-            <Button variant="secondary" size="lg" fullWidth>
-              Browse as guest
-            </Button>
+            <Button variant="secondary" size="lg" fullWidth>Continue as guest</Button>
           </Link>
 
-          {/* Demo credentials hint */}
-          <div className="mt-6 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
-            <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Demo credentials</p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">Customer: <span className="font-mono">customer@shop.com / customer123</span></p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">Admin: <span className="font-mono">admin@shop.com / admin123</span></p>
+          {/* Demo credentials — collapsible */}
+          <div className="mt-5 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setShowDemo(!showDemo)}
+              className="w-full flex items-center justify-between px-4 py-3 text-left bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                Demo credentials
+              </span>
+              {showDemo
+                ? <ChevronUp className="h-3.5 w-3.5 text-zinc-400" />
+                : <ChevronDown className="h-3.5 w-3.5 text-zinc-400" />}
+            </button>
+            {showDemo && (
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: "auto" }}
+                transition={{ duration: 0.2 }}
+                className="px-4 py-3 space-y-1.5 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800"
+              >
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Customer:{" "}
+                  <span className="font-mono text-zinc-700 dark:text-zinc-300">customer@shop.com / customer123</span>
+                </p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Admin:{" "}
+                  <span className="font-mono text-zinc-700 dark:text-zinc-300">admin@shop.com / admin123</span>
+                </p>
+              </motion.div>
+            )}
           </div>
-        </div>
+
+          <p className="mt-6 text-center text-xs text-zinc-400 dark:text-zinc-500">
+            By signing in you agree to our{" "}
+            <Link href="#" className="hover:underline text-zinc-500 dark:text-zinc-400">Terms</Link>
+            {" & "}
+            <Link href="#" className="hover:underline text-zinc-500 dark:text-zinc-400">Privacy Policy</Link>
+          </p>
+        </motion.div>
       </div>
     </div>
   );
