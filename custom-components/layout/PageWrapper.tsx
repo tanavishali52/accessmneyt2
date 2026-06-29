@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 
 interface PageWrapperProps {
   children: React.ReactNode;
@@ -50,9 +50,9 @@ export function AdminPageWrapper({
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{title}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50">{title}</h1>
           {description && (
-            <p className="text-sm text-slate-500 mt-0.5">{description}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{description}</p>
           )}
         </div>
         {action && <div className="shrink-0">{action}</div>}

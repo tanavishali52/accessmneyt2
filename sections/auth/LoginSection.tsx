@@ -54,7 +54,7 @@ export function LoginSection() {
       {/* Left panel — branding (hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-violet-600 to-violet-800 p-12 flex-col justify-between">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-white/20 flex items-center justify-center">
+          <div className="h-9 w-9 rounded-xl bg-white dark:bg-zinc-900/20 flex items-center justify-center">
             <Store className="h-5 w-5 text-white" />
           </div>
           <span className="font-bold text-white text-xl">ShopHub</span>
@@ -75,7 +75,7 @@ export function LoginSection() {
             { value: "10k+", label: "Customers" },
             { value: "4.8★", label: "Rating" },
           ].map(({ value, label }) => (
-            <div key={label} className="bg-white/10 rounded-xl p-4">
+            <div key={label} className="bg-white dark:bg-zinc-900/10 rounded-xl p-4">
               <p className="text-2xl font-bold text-white">{value}</p>
               <p className="text-xs text-violet-200 mt-0.5">{label}</p>
             </div>
@@ -91,7 +91,7 @@ export function LoginSection() {
             <div className="h-8 w-8 rounded-lg bg-violet-600 flex items-center justify-center">
               <Store className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-slate-900 text-lg">ShopHub</span>
+            <span className="font-bold text-zinc-900 dark:text-zinc-50 text-lg">ShopHub</span>
           </Link>
 
           <Heading as="h2" size="2xl" className="mb-1">Sign in</Heading>
@@ -131,7 +131,7 @@ export function LoginSection() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -166,10 +166,10 @@ export function LoginSection() {
           </Link>
 
           {/* Demo credentials hint */}
-          <div className="mt-6 p-3 rounded-lg bg-slate-50 border border-slate-200">
-            <p className="text-xs font-semibold text-slate-600 mb-1.5">Demo credentials</p>
-            <p className="text-xs text-slate-500">Customer: <span className="font-mono">customer@shop.com / customer123</span></p>
-            <p className="text-xs text-slate-500">Admin: <span className="font-mono">admin@shop.com / admin123</span></p>
+          <div className="mt-6 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
+            <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5">Demo credentials</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Customer: <span className="font-mono">customer@shop.com / customer123</span></p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Admin: <span className="font-mono">admin@shop.com / admin123</span></p>
           </div>
         </div>
       </div>

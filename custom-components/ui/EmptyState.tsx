@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 import { Heading, Paragraph } from "./Typography";
 import { Button } from "./Button";
 
@@ -17,7 +17,7 @@ export function EmptyState({ icon, title, description, action, className }: Empt
   return (
     <div className={cn("flex flex-col items-center justify-center py-12 sm:py-16 px-4 sm:px-6 text-center", className)}>
       {icon && (
-        <div className="mb-4 p-3 sm:p-4 rounded-full bg-slate-100 text-slate-400">
+        <div className="mb-4 p-3 sm:p-4 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500">
           {icon}
         </div>
       )}

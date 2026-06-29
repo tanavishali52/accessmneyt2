@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { ShoppingCart, ShoppingBag } from "lucide-react";
@@ -40,7 +40,7 @@ export function CartDrawer() {
               Sign in to checkout
             </Button>
           </Link>
-          <Heading size="xs" className="text-center text-slate-400 font-normal">
+          <Heading size="xs" className="text-center text-zinc-400 dark:text-zinc-500 font-normal">
             or
           </Heading>
           <Link href="/checkout" onClick={() => dispatch(closeCart())}>

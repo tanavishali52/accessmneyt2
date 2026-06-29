@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   width?: string;
@@ -12,7 +12,7 @@ export function Skeleton({ width, height, rounded = "md", className, ...props }:
   };
   return (
     <div
-      className={cn("animate-pulse bg-slate-200", roundeds[rounded], className)}
+      className={cn("animate-pulse bg-zinc-200 dark:bg-zinc-700", roundeds[rounded], className)}
       style={{ width, height }}
       {...props}
     />
@@ -31,7 +31,7 @@ export function SkeletonText({ lines = 3, className }: { lines?: number; classNa
 
 export function SkeletonCard({ className }: { className?: string }) {
   return (
-    <div className={cn("bg-white border border-slate-200 rounded-xl p-3 sm:p-4 space-y-3", className)}>
+    <div className={cn("bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 sm:p-4 space-y-3", className)}>
       <Skeleton height="160px" rounded="lg" className="w-full sm:h-[180px]" />
       <Skeleton height="16px" className="w-3/4" />
       <Skeleton height="12px" className="w-1/2" />
@@ -45,14 +45,14 @@ export function SkeletonCard({ className }: { className?: string }) {
 
 export function SkeletonTable({ rows = 5, cols = 4, className }: { rows?: number; cols?: number; className?: string }) {
   return (
-    <div className={cn("space-y-0 border border-slate-200 rounded-xl overflow-hidden", className)}>
-      <div className="flex gap-3 sm:gap-4 px-3 sm:px-4 py-3 bg-slate-50 border-b border-slate-200">
+    <div className={cn("space-y-0 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden", className)}>
+      <div className="flex gap-3 sm:gap-4 px-3 sm:px-4 py-3 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
         {Array.from({ length: cols }).map((_, i) => (
           <Skeleton key={i} height="12px" className="flex-1" />
         ))}
       </div>
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex gap-3 sm:gap-4 px-3 sm:px-4 py-3.5 border-b border-slate-100 last:border-0">
+        <div key={i} className="flex gap-3 sm:gap-4 px-3 sm:px-4 py-3.5 border-b border-zinc-100 dark:border-zinc-800 last:border-0">
           {Array.from({ length: cols }).map((_, j) => (
             <Skeleton key={j} height="14px" className="flex-1" />
           ))}

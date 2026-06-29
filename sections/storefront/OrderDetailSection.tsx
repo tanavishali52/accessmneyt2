@@ -77,17 +77,17 @@ function StatusTimeline({ status }: { status: OrderStatus }) {
         return (
           <div key={step.status} className="flex-1 flex flex-col items-center">
             <div className="flex items-center w-full">
-              {i > 0 && <div className={`flex-1 h-0.5 ${done || active ? "bg-violet-500" : "bg-slate-200"}`} />}
+              {i > 0 && <div className={`flex-1 h-0.5 ${done || active ? "bg-violet-500" : "bg-zinc-200 dark:bg-zinc-700"}`} />}
               <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 transition-colors
                 ${done   ? "bg-green-500 text-white"
                 : active ? "bg-violet-600 text-white ring-3 ring-violet-100"
-                :          "bg-slate-100 text-slate-400"}`}
+                :          "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500"}`}
               >
                 {done ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
               </div>
-              {i < TIMELINE.length - 1 && <div className={`flex-1 h-0.5 ${done ? "bg-violet-500" : "bg-slate-200"}`} />}
+              {i < TIMELINE.length - 1 && <div className={`flex-1 h-0.5 ${done ? "bg-violet-500" : "bg-zinc-200 dark:bg-zinc-700"}`} />}
             </div>
-            <Caption className={`mt-1.5 text-center text-[10px] sm:text-xs ${active ? "text-violet-600 font-semibold" : done ? "text-green-600" : "text-slate-400"}`}>
+            <Caption className={`mt-1.5 text-center text-[10px] sm:text-xs ${active ? "text-violet-600 font-semibold" : done ? "text-green-600" : "text-zinc-400 dark:text-zinc-500"}`}>
               {step.label}
             </Caption>
           </div>
@@ -118,7 +118,7 @@ export function OrderDetailSection() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-6">
       {/* Back */}
-      <Link href="/orders" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors">
+      <Link href="/orders" className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-50 transition-colors">
         <ChevronLeft className="h-4 w-4" /> Back to orders
       </Link>
 
@@ -148,14 +148,14 @@ export function OrderDetailSection() {
           {order.items.map((item, i) => (
             <div key={item.productId}>
               <div className="flex gap-3 px-4 py-3.5">
-                <div className="relative h-14 w-14 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+                <div className="relative h-14 w-14 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
                   <img src={item.imageUrl} alt={item.name} className="object-cover w-full h-full" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <Paragraph size="sm" className="font-semibold text-slate-900 line-clamp-2">{item.name}</Paragraph>
+                  <Paragraph size="sm" className="font-semibold text-zinc-900 dark:text-zinc-50 line-clamp-2">{item.name}</Paragraph>
                   <Caption>Qty: {item.quantity} · {formatPrice(item.price)} each</Caption>
                 </div>
-                <span className="text-sm font-bold text-slate-900 shrink-0">{formatPrice(item.price * item.quantity)}</span>
+                <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50 shrink-0">{formatPrice(item.price * item.quantity)}</span>
               </div>
               {i < order.items.length - 1 && <Divider className="mx-4" />}
             </div>
@@ -168,24 +168,24 @@ export function OrderDetailSection() {
         {/* Order total */}
         <Card padding="md" className="space-y-2">
           <div className="flex items-center gap-2 mb-3">
-            <CreditCard className="h-4 w-4 text-slate-400" />
+            <CreditCard className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
             <Heading size="sm">Payment summary</Heading>
           </div>
           <div className="space-y-1.5 text-sm">
-            <div className="flex justify-between text-slate-600">
+            <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
               <span>Subtotal</span>
               <span>{formatPrice(order.total - Math.max(0, shippingCost))}</span>
             </div>
-            <div className="flex justify-between text-slate-600">
+            <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
               <span>Shipping</span>
               <span className={shippingCost <= 0 ? "text-green-600" : ""}>{shippingCost <= 0 ? "Free" : formatPrice(shippingCost)}</span>
             </div>
             <Divider />
-            <div className="flex justify-between font-bold text-slate-900">
+            <div className="flex justify-between font-bold text-zinc-900 dark:text-zinc-50">
               <span>Total</span>
               <span>{formatPrice(order.total)}</span>
             </div>
-            <div className="flex justify-between text-slate-500 text-xs">
+            <div className="flex justify-between text-zinc-500 dark:text-zinc-400 text-xs">
               <span>Payment</span>
               <Badge variant="success" size="sm">{order.paymentStatus === "paid" ? "Paid" : "Pending"}</Badge>
             </div>
@@ -195,11 +195,11 @@ export function OrderDetailSection() {
         {/* Shipping address */}
         <Card padding="md">
           <div className="flex items-center gap-2 mb-3">
-            <MapPin className="h-4 w-4 text-slate-400" />
+            <MapPin className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
             <Heading size="sm">Shipping address</Heading>
           </div>
-          <div className="text-sm text-slate-600 space-y-0.5">
-            <p className="font-semibold text-slate-900">{order.shippingAddress.fullName}</p>
+          <div className="text-sm text-zinc-600 dark:text-zinc-400 space-y-0.5">
+            <p className="font-semibold text-zinc-900 dark:text-zinc-50">{order.shippingAddress.fullName}</p>
             <p>{order.shippingAddress.address}</p>
             <p>{order.shippingAddress.city}, {order.shippingAddress.postcode}</p>
             <p>{order.shippingAddress.country}</p>

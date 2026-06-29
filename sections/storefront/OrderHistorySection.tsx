@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { Package, ChevronRight, ShoppingBag } from "lucide-react";
@@ -112,7 +112,7 @@ export function OrderHistorySection() {
                     {/* Left info */}
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-sm font-semibold text-slate-900">{order._id}</span>
+                        <span className="font-mono text-sm font-semibold text-zinc-900 dark:text-zinc-50">{order._id}</span>
                         <Badge variant={STATUS_BADGE[order.status]} dot>
                           {ORDER_STATUS_LABELS[order.status]}
                         </Badge>
@@ -129,22 +129,22 @@ export function OrderHistorySection() {
                     {/* Right: total + arrow */}
                     <div className="flex items-center gap-3 shrink-0">
                       <div className="text-right">
-                        <p className="text-sm font-bold text-slate-900">{formatPrice(order.total)}</p>
+                        <p className="text-sm font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(order.total)}</p>
                         <Caption>{order.paymentStatus === "paid" ? "Paid" : "Pending"}</Caption>
                       </div>
-                      <ChevronRight className="h-4 w-4 text-slate-400" />
+                      <ChevronRight className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
                     </div>
                   </div>
 
                   {/* Item image strip */}
-                  <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
+                  <div className="flex gap-2 mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
                     {order.items.slice(0, 4).map((item) => (
-                      <div key={item.productId} className="relative h-10 w-10 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+                      <div key={item.productId} className="relative h-10 w-10 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
                         <img src={item.imageUrl} alt={item.name} className="object-cover w-full h-full" />
                       </div>
                     ))}
                     {order.items.length > 4 && (
-                      <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-medium text-slate-500">
+                      <div className="h-10 w-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs font-medium text-zinc-500 dark:text-zinc-400">
                         +{order.items.length - 4}
                       </div>
                     )}

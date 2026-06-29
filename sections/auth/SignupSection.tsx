@@ -56,9 +56,9 @@ export function SignupSection() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left panel — branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 to-slate-800 p-12 flex-col justify-between">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-zinc-900 to-zinc-800 p-12 flex-col justify-between">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-white/10 flex items-center justify-center">
+          <div className="h-9 w-9 rounded-xl bg-white dark:bg-zinc-900/10 flex items-center justify-center">
             <Store className="h-5 w-5 text-white" />
           </div>
           <span className="font-bold text-white text-xl">ShopHub</span>
@@ -74,13 +74,13 @@ export function SignupSection() {
                 <span className="h-5 w-5 rounded-full bg-violet-500 flex items-center justify-center shrink-0">
                   <Check className="h-3 w-3 text-white" />
                 </span>
-                <span className="text-slate-300 text-sm">{perk}</span>
+                <span className="text-zinc-300 dark:text-zinc-600 text-sm">{perk}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <Paragraph size="xs" className="text-slate-500">
+        <Paragraph size="xs" className="text-zinc-500 dark:text-zinc-400">
           By creating an account you agree to our Terms of Service and Privacy Policy.
         </Paragraph>
       </div>
@@ -93,7 +93,7 @@ export function SignupSection() {
             <div className="h-8 w-8 rounded-lg bg-violet-600 flex items-center justify-center">
               <Store className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-slate-900 text-lg">ShopHub</span>
+            <span className="font-bold text-zinc-900 dark:text-zinc-50 text-lg">ShopHub</span>
           </Link>
 
           <Heading as="h2" size="2xl" className="mb-1">Create account</Heading>
@@ -143,7 +143,7 @@ export function SignupSection() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -163,7 +163,7 @@ export function SignupSection() {
                 <button
                   type="button"
                   onClick={() => setShowConfirm(!showConfirm)}
-                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 transition-colors"
                   aria-label={showConfirm ? "Hide password" : "Show password"}
                 >
                   {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -44,9 +44,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
   return (
     <Link href={`/products/${product._id}`} className={cn("group block", className)}>
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 h-full flex flex-col">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 h-full flex flex-col">
         {/* Image */}
-        <div className="relative aspect-square overflow-hidden bg-slate-100">
+        <div className="relative aspect-square overflow-hidden bg-zinc-100 dark:bg-zinc-800">
           <Image
             src={product.imageUrl}
             alt={product.name}
@@ -61,7 +61,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           </div>
           {/* Quick view overlay */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200 flex items-center justify-center">
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1.5 bg-white text-slate-700 text-xs font-medium px-3 py-1.5 rounded-full shadow-sm">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1.5 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 text-xs font-medium px-3 py-1.5 rounded-full shadow-sm">
               <Eye className="h-3.5 w-3.5" /> Quick view
             </span>
           </div>
@@ -70,11 +70,11 @@ export function ProductCard({ product, className }: ProductCardProps) {
         {/* Content */}
         <div className="flex flex-col flex-1 p-3 sm:p-4 gap-2">
           <Badge variant="default" size="sm" className="self-start">{product.category}</Badge>
-          <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 leading-snug flex-1">
+          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug flex-1">
             {product.name}
           </h3>
           <div className="flex items-center justify-between gap-2 mt-auto pt-2">
-            <span className="text-base font-bold text-slate-900">{formatPrice(product.price)}</span>
+            <span className="text-base font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(product.price)}</span>
             <Button
               variant="primary"
               size="sm"

@@ -42,11 +42,11 @@ export function CartSummary({ subtotal, itemCount }: CartSummaryProps) {
       <Divider />
 
       <div className="space-y-2">
-        <div className="flex justify-between text-sm text-slate-600">
+        <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-400">
           <span>Subtotal ({itemCount} item{itemCount !== 1 ? "s" : ""})</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
-        <div className="flex justify-between text-sm text-slate-600">
+        <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-400">
           <span>Shipping</span>
           <span className={shipping === 0 ? "text-green-600 font-medium" : ""}>
             {shipping === 0 ? "Free" : formatPrice(shipping)}
@@ -56,7 +56,7 @@ export function CartSummary({ subtotal, itemCount }: CartSummaryProps) {
 
       <Divider />
 
-      <div className="flex justify-between font-bold text-slate-900">
+      <div className="flex justify-between font-bold text-zinc-900 dark:text-zinc-50">
         <span>Total</span>
         <span className="text-lg">{formatPrice(total)}</span>
       </div>

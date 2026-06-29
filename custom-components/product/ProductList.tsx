@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -19,7 +19,7 @@ interface ProductListProps {
 
 function ProductListSkeleton() {
   return (
-    <div className="flex gap-4 p-4 bg-white border border-slate-200 rounded-xl">
+    <div className="flex gap-4 p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl">
       <Skeleton className="h-20 w-20 sm:h-24 sm:w-24 shrink-0" rounded="lg" />
       <div className="flex-1 space-y-2">
         <Skeleton height="12px" className="w-16" />
@@ -67,9 +67,9 @@ export function ProductList({ products, loading = false, className }: ProductLis
     <div className={cn("space-y-3", className)}>
       {products.map((product) => (
         <Link key={product._id} href={`/products/${product._id}`} className="group block">
-          <div className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-white border border-slate-200 rounded-xl hover:shadow-md transition-all duration-200">
+          <div className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:shadow-md transition-all duration-200">
             {/* Image */}
-            <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+            <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
               <Image
                 src={product.imageUrl}
                 alt={product.name}
@@ -82,10 +82,10 @@ export function ProductList({ products, loading = false, className }: ProductLis
             {/* Info */}
             <div className="flex-1 min-w-0">
               <Badge variant="default" size="sm" className="mb-1">{product.category}</Badge>
-              <h3 className="text-sm font-semibold text-slate-900 line-clamp-1 sm:line-clamp-2 mb-1">
+              <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 line-clamp-1 sm:line-clamp-2 mb-1">
                 {product.name}
               </h3>
-              <p className="text-xs text-slate-500 line-clamp-2 hidden sm:block">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 hidden sm:block">
                 {product.description}
               </p>
               {product.stock === 0 && (
@@ -98,7 +98,7 @@ export function ProductList({ products, loading = false, className }: ProductLis
 
             {/* Price + action */}
             <div className="flex flex-col items-end justify-between shrink-0 gap-2">
-              <span className="text-base font-bold text-slate-900">{formatPrice(product.price)}</span>
+              <span className="text-base font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(product.price)}</span>
               <Button
                 variant="primary"
                 size="sm"

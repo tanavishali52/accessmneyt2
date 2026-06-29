@@ -44,16 +44,16 @@ function StepIndicator({ current }: { current: number }) {
               <div className={`h-9 w-9 rounded-full flex items-center justify-center transition-colors
                 ${done   ? "bg-green-500 text-white"
                 : active ? "bg-violet-600 text-white ring-4 ring-violet-100"
-                :          "bg-slate-100 text-slate-400"}`}
+                :          "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500"}`}
               >
                 {done ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
               </div>
-              <span className={`text-xs font-medium hidden sm:block ${active ? "text-violet-600" : done ? "text-green-600" : "text-slate-400"}`}>
+              <span className={`text-xs font-medium hidden sm:block ${active ? "text-violet-600" : done ? "text-green-600" : "text-zinc-400 dark:text-zinc-500"}`}>
                 {step.label}
               </span>
             </div>
             {i < STEPS.length - 1 && (
-              <div className={`h-0.5 w-12 sm:w-20 mx-2 mb-4 sm:mb-5 transition-colors ${done ? "bg-green-400" : "bg-slate-200"}`} />
+              <div className={`h-0.5 w-12 sm:w-20 mx-2 mb-4 sm:mb-5 transition-colors ${done ? "bg-green-400" : "bg-zinc-200 dark:bg-zinc-700"}`} />
             )}
           </div>
         );
@@ -74,34 +74,34 @@ function OrderSidebar({ items, subtotal }: { items: CartItemLike[]; subtotal: nu
       <div className="space-y-3">
         {items.map((item) => (
           <div key={item.productId} className="flex gap-3">
-            <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+            <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0">
               <Image src={item.imageUrl} alt={item.name} fill className="object-cover" sizes="48px" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-slate-700 text-white text-[9px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-zinc-700 dark:bg-zinc-200 text-white text-[9px] font-bold flex items-center justify-center">
                 {item.quantity}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-slate-800 line-clamp-2">{item.name}</p>
-              <p className="text-xs text-slate-500">{formatPrice(item.price)} each</p>
+              <p className="text-xs font-medium text-zinc-800 dark:text-zinc-100 line-clamp-2">{item.name}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">{formatPrice(item.price)} each</p>
             </div>
-            <span className="text-xs font-semibold text-slate-900 shrink-0">{formatPrice(item.price * item.quantity)}</span>
+            <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-50 shrink-0">{formatPrice(item.price * item.quantity)}</span>
           </div>
         ))}
       </div>
       <Divider />
       <div className="space-y-1.5 text-sm">
-        <div className="flex justify-between text-slate-600"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
-        <div className="flex justify-between text-slate-600">
+        <div className="flex justify-between text-zinc-600 dark:text-zinc-400"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
+        <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
           <span>Shipping</span>
           <span className={shipping === 0 ? "text-green-600 font-medium" : ""}>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
         </div>
       </div>
       <Divider />
-      <div className="flex justify-between font-bold text-slate-900">
+      <div className="flex justify-between font-bold text-zinc-900 dark:text-zinc-50">
         <span>Total</span>
         <span className="text-lg">{formatPrice(subtotal + shipping)}</span>
       </div>
-      <div className="flex items-center gap-2 text-xs text-slate-400">
+      <div className="flex items-center gap-2 text-xs text-zinc-400 dark:text-zinc-500">
         <Lock className="h-3.5 w-3.5 shrink-0" />
         Secure checkout — 256-bit SSL
       </div>
@@ -148,7 +148,7 @@ export function CheckoutSection() {
   if (localItems.length === 0 && !placedOrder) {
     return (
       <div className="max-w-lg mx-auto px-4 py-16 text-center">
-        <ShoppingBag className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+        <ShoppingBag className="h-12 w-12 text-zinc-300 dark:text-zinc-600 mx-auto mb-4" />
         <Heading size="xl" className="mb-2">Your cart is empty</Heading>
         <Paragraph variant="muted" className="mb-6">Add some products before checking out.</Paragraph>
         <Link href="/"><Button variant="primary">Continue shopping</Button></Link>
@@ -170,20 +170,20 @@ export function CheckoutSection() {
 
         <Card padding="md" className="text-left mb-6 space-y-3">
           <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Order ID</span>
-            <span className="font-mono font-semibold text-slate-900">{placedOrder._id}</span>
+            <span className="text-zinc-500 dark:text-zinc-400">Order ID</span>
+            <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-50">{placedOrder._id}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Status</span>
+            <span className="text-zinc-500 dark:text-zinc-400">Status</span>
             <Badge variant="warning" dot>Pending</Badge>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Total</span>
-            <span className="font-bold text-slate-900">{formatPrice(placedOrder.total)}</span>
+            <span className="text-zinc-500 dark:text-zinc-400">Total</span>
+            <span className="font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(placedOrder.total)}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-slate-500">Delivering to</span>
-            <span className="text-slate-700 text-right">{placedOrder.shippingAddress.address}, {placedOrder.shippingAddress.city}</span>
+            <span className="text-zinc-500 dark:text-zinc-400">Delivering to</span>
+            <span className="text-zinc-700 dark:text-zinc-300 text-right">{placedOrder.shippingAddress.address}, {placedOrder.shippingAddress.city}</span>
           </div>
         </Card>
 
@@ -294,10 +294,10 @@ export function CheckoutSection() {
 
                 {/* Shipping summary */}
                 {shipping && (
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
-                    <MapPin className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
-                    <div className="text-sm text-slate-600">
-                      <p className="font-medium text-slate-900">{shipping.fullName}</p>
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
+                    <MapPin className="h-4 w-4 text-zinc-400 dark:text-zinc-500 shrink-0 mt-0.5" />
+                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                      <p className="font-medium text-zinc-900 dark:text-zinc-50">{shipping.fullName}</p>
                       <p>{shipping.address}, {shipping.city}, {shipping.postcode}</p>
                     </div>
                     <button type="button" onClick={() => setStep(1)} className="ml-auto text-xs text-violet-600 hover:underline shrink-0">Edit</button>

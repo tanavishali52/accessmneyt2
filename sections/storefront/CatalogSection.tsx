@@ -195,14 +195,14 @@ export function CatalogSection() {
             </span>
           )}
           {categories.map((c) => (
-            <span key={c} className="flex items-center gap-1.5 text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full">
+            <span key={c} className="flex items-center gap-1.5 text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-2.5 py-1 rounded-full">
               {c}
               <button onClick={() => handleCategory(categories.filter((x) => x !== c))}>
                 <X className="h-3 w-3" />
               </button>
             </span>
           ))}
-          <button onClick={handleClearFilters} className="text-xs text-slate-400 hover:text-slate-600 underline">
+          <button onClick={handleClearFilters} className="text-xs text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 underline">
             Clear all
           </button>
         </div>
@@ -212,10 +212,10 @@ export function CatalogSection() {
       {filtersOpen && (
         <div className="lg:hidden mb-4">
           <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setFiltersOpen(false)} />
-          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl p-4 max-h-[80vh] overflow-y-auto">
+          <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-900 rounded-t-2xl p-4 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <Heading size="md">Filters</Heading>
-              <button onClick={() => setFiltersOpen(false)}><X className="h-5 w-5 text-slate-500" /></button>
+              <button onClick={() => setFiltersOpen(false)}><X className="h-5 w-5 text-zinc-500 dark:text-zinc-400" /></button>
             </div>
             <FilterSidebar />
             <Button variant="primary" fullWidth className="mt-4" onClick={() => setFiltersOpen(false)}>

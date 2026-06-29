@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -66,23 +66,23 @@ export function ProductDetailSection() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-slate-500 mb-6">
-        <Link href="/" className="hover:text-slate-900 transition-colors flex items-center gap-1">
+      <nav className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-6">
+        <Link href="/" className="hover:text-zinc-900 dark:text-zinc-50 transition-colors flex items-center gap-1">
           <ChevronLeft className="h-3.5 w-3.5" /> Shop
         </Link>
         <span>/</span>
-        <Link href={`/?category=${product.category}`} className="hover:text-slate-900 transition-colors">
+        <Link href={`/?category=${product.category}`} className="hover:text-zinc-900 dark:text-zinc-50 transition-colors">
           {product.category}
         </Link>
         <span>/</span>
-        <span className="text-slate-900 font-medium truncate max-w-[200px]">{product.name}</span>
+        <span className="text-zinc-900 dark:text-zinc-50 font-medium truncate max-w-[200px]">{product.name}</span>
       </nav>
 
       {/* Main grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mb-12 sm:mb-16">
 
         {/* Image */}
-        <div className="relative aspect-square rounded-2xl overflow-hidden bg-slate-100">
+        <div className="relative aspect-square rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
           <Image
             src={product.imageUrl}
             alt={product.name}
@@ -92,7 +92,7 @@ export function ProductDetailSection() {
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
           {isOutOfStock && (
-            <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+            <div className="absolute inset-0 bg-white dark:bg-zinc-900/60 flex items-center justify-center">
               <Badge variant="danger" size="md">Out of stock</Badge>
             </div>
           )}
@@ -108,7 +108,7 @@ export function ProductDetailSection() {
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-0.5">
                 {[1,2,3,4,5].map((s) => (
-                  <Star key={s} className={`h-4 w-4 ${s <= 4 ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}`} />
+                  <Star key={s} className={`h-4 w-4 ${s <= 4 ? "text-amber-400 fill-amber-400" : "text-zinc-200 dark:text-zinc-700 fill-zinc-200"}`} />
                 ))}
               </div>
               <Caption>4.0 (128 reviews)</Caption>
@@ -119,9 +119,9 @@ export function ProductDetailSection() {
 
           {/* Price */}
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-bold text-slate-900">{formatPrice(product.price)}</span>
+            <span className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(product.price)}</span>
             {product.price > 50 && (
-              <Caption className="line-through text-slate-400">
+              <Caption className="line-through text-zinc-400 dark:text-zinc-500">
                 {formatPrice(product.price * 1.2)}
               </Caption>
             )}
@@ -156,19 +156,19 @@ export function ProductDetailSection() {
             <div className="space-y-3">
               <div className="flex items-center gap-4">
                 <Heading size="sm">Quantity</Heading>
-                <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
+                <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden">
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="flex items-center justify-center h-10 w-10 text-slate-600 hover:bg-slate-100 transition-colors"
+                    className="flex items-center justify-center h-10 w-10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:bg-zinc-800 transition-colors"
                     aria-label="Decrease"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
-                  <span className="w-10 text-center text-sm font-bold text-slate-900">{qty}</span>
+                  <span className="w-10 text-center text-sm font-bold text-zinc-900 dark:text-zinc-50">{qty}</span>
                   <button
                     onClick={() => setQty(Math.min(maxQty, qty + 1))}
                     disabled={qty >= maxQty}
-                    className="flex items-center justify-center h-10 w-10 text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-40"
+                    className="flex items-center justify-center h-10 w-10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:bg-zinc-800 transition-colors disabled:opacity-40"
                     aria-label="Increase"
                   >
                     <Plus className="h-4 w-4" />
@@ -210,7 +210,7 @@ export function ProductDetailSection() {
             ].map(({ label, value }) => (
               <div key={label}>
                 <Caption className="block mb-0.5">{label}</Caption>
-                <span className="font-medium text-slate-700">{value}</span>
+                <span className="font-medium text-zinc-700 dark:text-zinc-300">{value}</span>
               </div>
             ))}
           </div>

@@ -31,14 +31,14 @@ export function Search({
 
   return (
     <div className={cn("relative flex items-center w-full", className)}>
-      <SearchIcon className={cn("absolute text-slate-400 pointer-events-none", iconSizes[size])} />
+      <SearchIcon className={cn("absolute text-zinc-400 dark:text-zinc-500 pointer-events-none", iconSizes[size])} />
       <input
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className={cn(
-          "w-full rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400",
+          "w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:text-zinc-500",
           "focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-colors",
           // Prevent iOS zoom on focus (font-size >= 16px)
           "text-[16px] sm:text-sm",
@@ -49,7 +49,7 @@ export function Search({
         <button
           type="button"
           onClick={() => onChange("")}
-          className="absolute right-3 text-slate-400 hover:text-slate-600 transition-colors min-h-[24px] min-w-[24px] flex items-center justify-center"
+          className="absolute right-3 text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 transition-colors min-h-[24px] min-w-[24px] flex items-center justify-center"
           aria-label="Clear search"
         >
           <X className="h-3.5 w-3.5" />

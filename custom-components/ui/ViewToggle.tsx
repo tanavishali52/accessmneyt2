@@ -14,7 +14,7 @@ interface ViewToggleProps {
 
 export function ViewToggle({ view, onChange, className }: ViewToggleProps) {
   return (
-    <div className={cn("flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white", className)}>
+    <div className={cn("flex items-center border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden bg-white dark:bg-zinc-900", className)}>
       <Tooltip content="Grid view">
         <button
           type="button"
@@ -23,7 +23,7 @@ export function ViewToggle({ view, onChange, className }: ViewToggleProps) {
             "flex items-center justify-center h-9 w-9 transition-colors",
             view === "grid"
               ? "bg-violet-600 text-white"
-              : "text-slate-500 hover:bg-slate-50"
+              : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:bg-zinc-900"
           )}
           aria-label="Grid view"
           aria-pressed={view === "grid"}
@@ -36,10 +36,10 @@ export function ViewToggle({ view, onChange, className }: ViewToggleProps) {
           type="button"
           onClick={() => onChange("list")}
           className={cn(
-            "flex items-center justify-center h-9 w-9 transition-colors border-l border-slate-200",
+            "flex items-center justify-center h-9 w-9 transition-colors border-l border-zinc-200 dark:border-zinc-700",
             view === "list"
               ? "bg-violet-600 text-white"
-              : "text-slate-500 hover:bg-slate-50"
+              : "text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:bg-zinc-900"
           )}
           aria-label="List view"
           aria-pressed={view === "list"}

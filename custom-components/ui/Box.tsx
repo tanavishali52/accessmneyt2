@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 
 interface BoxProps extends React.HTMLAttributes<HTMLDivElement> {
   as?: React.ElementType;
@@ -41,10 +41,10 @@ export function Box({
   return (
     <Tag
       className={cn(
-        "bg-white",
+        "bg-white dark:bg-zinc-900",
         paddings[padding],
         shadows[shadow],
-        border && "border border-slate-200",
+        border && "border border-zinc-200 dark:border-zinc-700",
         roundeds[rounded],
         className
       )}

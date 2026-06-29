@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -33,7 +33,7 @@ export function Tooltip({ content, children, side = "top", className }: TooltipP
         <div
           role="tooltip"
           className={cn(
-            "absolute z-50 px-2.5 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-medium whitespace-nowrap shadow-lg pointer-events-none",
+            "absolute z-50 px-2.5 py-1.5 rounded-lg bg-zinc-900 text-white text-xs font-medium whitespace-nowrap shadow-lg pointer-events-none",
             positions[side],
             className
           )}

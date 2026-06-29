@@ -45,14 +45,14 @@ export function Pagination({ page, totalPages, total, limit, onPageChange, class
         </Button>
 
         {/* On mobile: only show current/total. On sm+: show full range */}
-        <span className="flex sm:hidden items-center px-3 text-sm text-slate-600 font-medium">
+        <span className="flex sm:hidden items-center px-3 text-sm text-zinc-600 dark:text-zinc-400 font-medium">
           {page} / {totalPages}
         </span>
 
         <div className="hidden sm:flex items-center gap-1">
           {pages.map((p, i) =>
             p === "..." ? (
-              <span key={`dots-${i}`} className="px-1 text-slate-400">
+              <span key={`dots-${i}`} className="px-1 text-zinc-400 dark:text-zinc-500">
                 <MoreHorizontal className="h-4 w-4" />
               </span>
             ) : (
@@ -63,7 +63,7 @@ export function Pagination({ page, totalPages, total, limit, onPageChange, class
                   "h-9 w-9 rounded-lg text-sm font-medium transition-colors min-h-[36px] min-w-[36px]",
                   page === p
                     ? "bg-violet-600 text-white"
-                    : "text-slate-600 hover:bg-slate-100 active:bg-slate-200"
+                    : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:bg-zinc-800 active:bg-zinc-200 dark:bg-zinc-700"
                 )}
               >
                 {p}

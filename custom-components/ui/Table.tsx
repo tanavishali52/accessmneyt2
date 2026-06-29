@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 import { SkeletonTable } from "./Skeleton";
 import { Paragraph } from "./Typography";
 
@@ -36,15 +36,15 @@ export function Table<T>({
 
   return (
     // Horizontal scroll on small screens
-    <div className={cn("w-full overflow-x-auto border border-slate-200 rounded-xl -webkit-overflow-scrolling-touch", className)}>
+    <div className={cn("w-full overflow-x-auto border border-zinc-200 dark:border-zinc-700 rounded-xl -webkit-overflow-scrolling-touch", className)}>
       <table className="w-full text-sm min-w-[480px]">
         <thead>
-          <tr className="bg-slate-50 border-b border-slate-200">
+          <tr className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  "px-3 sm:px-4 py-3 font-semibold text-slate-600 whitespace-nowrap",
+                  "px-3 sm:px-4 py-3 font-semibold text-zinc-600 dark:text-zinc-400 whitespace-nowrap",
                   align[col.align ?? "left"],
                   col.hideOnMobile && "hidden sm:table-cell"
                 )}
@@ -67,8 +67,8 @@ export function Table<T>({
               <tr
                 key={rowKey ? rowKey(row, i) : i}
                 className={cn(
-                  "border-b border-slate-100 last:border-0 transition-colors",
-                  onRowClick && "cursor-pointer hover:bg-slate-50 active:bg-slate-100"
+                  "border-b border-zinc-100 dark:border-zinc-800 last:border-0 transition-colors",
+                  onRowClick && "cursor-pointer hover:bg-zinc-50 dark:bg-zinc-900 active:bg-zinc-100 dark:bg-zinc-800"
                 )}
                 onClick={() => onRowClick?.(row)}
               >
@@ -76,7 +76,7 @@ export function Table<T>({
                   <td
                     key={col.key}
                     className={cn(
-                      "px-3 sm:px-4 py-3.5 text-slate-700",
+                      "px-3 sm:px-4 py-3.5 text-zinc-700 dark:text-zinc-300",
                       align[col.align ?? "left"],
                       col.hideOnMobile && "hidden sm:table-cell"
                     )}

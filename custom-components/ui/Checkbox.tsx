@@ -22,7 +22,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           type="checkbox"
           id={checkId}
           className={cn(
-            "mt-0.5 h-4 w-4 rounded border-slate-300 text-violet-600",
+            "mt-0.5 h-4 w-4 rounded border-zinc-300 dark:border-zinc-700 text-violet-600",
             "focus:ring-2 focus:ring-violet-500 focus:ring-offset-0 cursor-pointer",
             className
           )}
@@ -31,12 +31,12 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         {(label || description) && (
           <div className="flex flex-col">
             {label && (
-              <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">
+              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:text-zinc-50">
                 {label}
               </span>
             )}
             {description && (
-              <span className="text-xs text-slate-400">{description}</span>
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">{description}</span>
             )}
           </div>
         )}

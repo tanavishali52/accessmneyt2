@@ -10,30 +10,33 @@ interface ThemeToggleProps {
 
 export function ThemeToggle({ className }: ThemeToggleProps) {
   const { theme, toggle } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <button
       onClick={toggle}
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Light mode" : "Dark mode"}
       className={cn(
-        "relative flex items-center justify-center h-10 w-10 rounded-xl",
-        "bg-zinc-100 dark:bg-zinc-800",
-        "text-zinc-600 dark:text-zinc-300",
-        "hover:bg-zinc-200 dark:hover:bg-zinc-700",
-        "border border-zinc-200 dark:border-zinc-700",
-        "transition-all duration-200",
-        "active:scale-95",
+        "flex items-center gap-1.5 h-9 px-3 rounded-xl text-xs font-semibold",
+        "border transition-all duration-200 active:scale-95",
+        isDark
+          ? "bg-zinc-800 border-zinc-700 text-amber-400 hover:bg-zinc-700"
+          : "bg-zinc-100 border-zinc-200 text-zinc-600 hover:bg-zinc-200",
         className
       )}
     >
-      <span className="absolute inset-0 flex items-center justify-center transition-all duration-300"
-        style={{ opacity: theme === "light" ? 1 : 0, transform: theme === "light" ? "rotate(0deg)" : "rotate(90deg)" }}>
-        <Moon className="h-4 w-4" />
-      </span>
-      <span className="absolute inset-0 flex items-center justify-center transition-all duration-300"
-        style={{ opacity: theme === "dark" ? 1 : 0, transform: theme === "dark" ? "rotate(0deg)" : "rotate(-90deg)" }}>
-        <Sun className="h-4 w-4" />
-      </span>
+      {isDark ? (
+        <>
+          <Sun className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Light</span>
+        </>
+      ) : (
+        <>
+          <Moon className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Dark</span>
+        </>
+      )}
     </button>
   );
 }

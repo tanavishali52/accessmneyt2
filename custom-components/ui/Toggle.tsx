@@ -29,18 +29,18 @@ export function Toggle({ checked, onChange, label, disabled = false, size = "md"
         className={cn(
           "relative inline-flex shrink-0 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
           s.track,
-          checked ? "bg-violet-600" : "bg-slate-200"
+          checked ? "bg-violet-600" : "bg-zinc-200 dark:bg-zinc-700"
         )}
       >
         <span
           className={cn(
-            "pointer-events-none inline-block rounded-full bg-white shadow-sm transition-transform duration-200 m-0.5",
+            "pointer-events-none inline-block rounded-full bg-white dark:bg-zinc-900 shadow-sm transition-transform duration-200 m-0.5",
             s.thumb,
             checked ? s.translate : "translate-x-0"
           )}
         />
       </button>
-      {label && <span className="text-sm text-slate-700">{label}</span>}
+      {label && <span className="text-sm text-zinc-700 dark:text-zinc-300">{label}</span>}
     </label>
   );
 }
