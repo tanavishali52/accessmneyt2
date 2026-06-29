@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReduxProvider } from "@/custom-components/providers/ReduxProvider";
+import { AuthProvider } from "@/custom-components/providers/AuthProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -22,7 +23,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-[var(--color-bg)] text-[var(--color-text)]">
-        <ReduxProvider>{children}</ReduxProvider>
+        <ReduxProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ReduxProvider>
       </body>
     </html>
   );
