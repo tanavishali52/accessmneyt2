@@ -167,13 +167,14 @@ export function HomeSection() {
               {/* CTAs */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-8">
                 <Link href="/shop">
-                  <span className="inline-flex items-center gap-2 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 text-sm font-bold px-6 py-3 hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-colors">
-                    SHOP NOW <ArrowRight className="h-4 w-4" />
+                  <span className="group inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-bold px-7 py-3.5 rounded-2xl shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-200 hover:-translate-y-0.5">
+                    Shop Now
+                    <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                   </span>
                 </Link>
                 <Link href="/sale">
-                  <span className="inline-flex items-center gap-2 border-2 border-zinc-900 dark:border-zinc-50 text-zinc-900 dark:text-zinc-50 text-sm font-bold px-6 py-3 hover:bg-zinc-900 dark:hover:bg-zinc-50 hover:text-white dark:hover:text-zinc-900 transition-colors">
-                    SALE PICKS
+                  <span className="inline-flex items-center gap-2 bg-white/10 dark:bg-zinc-800 border border-violet-300 dark:border-violet-700 text-violet-700 dark:text-violet-300 text-sm font-bold px-7 py-3.5 rounded-2xl hover:bg-violet-50 dark:hover:bg-violet-950 hover:border-violet-500 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-sm">
+                    Sale Picks ⚡
                   </span>
                 </Link>
               </div>
