@@ -31,7 +31,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-200">
+      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 transition-colors duration-300">
         <ReduxProvider>
           <ThemeProvider>
             <AuthProvider>{children}</AuthProvider>

@@ -39,7 +39,7 @@ export function CartItem({
 
         {/* Qty stepper + remove */}
         <div className="flex items-center justify-between mt-auto">
-          <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden">
+          <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden">
             <button
               onClick={() => quantity > 1 ? onUpdateQty(quantity - 1) : onRemove()}
               disabled={loading}

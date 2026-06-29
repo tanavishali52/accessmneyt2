@@ -119,7 +119,7 @@ export function ProductDetailSection() {
 
           {/* Price */}
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(product.price)}</span>
+            <span className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 dark:text-zinc-50">{formatPrice(product.price)}</span>
             {product.price > 50 && (
               <Caption className="line-through text-zinc-400 dark:text-zinc-500">
                 {formatPrice(product.price * 1.2)}
@@ -156,7 +156,7 @@ export function ProductDetailSection() {
             <div className="space-y-3">
               <div className="flex items-center gap-4">
                 <Heading size="sm">Quantity</Heading>
-                <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden">
+                <div className="flex items-center border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden">
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
                     className="flex items-center justify-center h-10 w-10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:bg-zinc-800 transition-colors"

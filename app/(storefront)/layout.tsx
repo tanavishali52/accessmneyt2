@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--color-bg)]">
+    <div className="flex flex-col min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300">
       <Navbar />
       <PageTransition>
         <div className="flex-1 flex flex-col">{children}</div>
