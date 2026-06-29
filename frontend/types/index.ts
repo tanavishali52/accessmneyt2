@@ -160,6 +160,10 @@ export interface ProductQueryParams {
   limit?: number;
 }
 
+export interface UpdateOrderStatusPayload {
+  status: OrderStatus;
+}
+
 // ─── Admin Dashboard ──────────────────────────────────────────────────────────
 
 export interface DashboardStats {
