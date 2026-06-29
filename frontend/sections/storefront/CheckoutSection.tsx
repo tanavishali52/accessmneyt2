@@ -23,9 +23,9 @@ import { Badge } from "@/custom-components/ui/Badge";
 import { Alert } from "@/custom-components/ui/Alert";
 import { Card } from "@/custom-components/ui/Card";
 import { useGetCartQuery, useClearCartMutation } from "@/services/cartService";
-import { useCreateOrderMutation } from "@/services/ordersService";
+import { useCreateOrderMutation, useCreateGuestOrderMutation } from "@/services/ordersService";
 import { useCreatePaymentIntentMutation } from "@/services/paymentsService";
-import type { ShippingAddress, Order, OrderItem, CartItem } from "@/types";
+import type { ShippingAddress, Order, CartItem } from "@/types";
 
 // ─── Stripe loader (singleton) ────────────────────────────────────────────────
 
@@ -169,6 +169,7 @@ function PaymentForm({
 
   const [createPaymentIntent] = useCreatePaymentIntentMutation();
   const [createOrder]         = useCreateOrderMutation();
+  const [createGuestOrder]    = useCreateGuestOrderMutation();
   const [clearServerCart]     = useClearCartMutation();
   const dispatch              = useAppDispatch();
 
@@ -218,25 +219,14 @@ function PaymentForm({
         try { await clearServerCart().unwrap(); } catch { /* ignore */ }
         onSuccess(order);
       } else {
-        const mockOrder: Order = {
-          _id: `ORD-${Date.now().toString(36).toUpperCase()}`,
-          userId: "guest",
-          items: cartItems.map((i): OrderItem => ({
-            productId: i.productId,
-            name: i.name,
-            price: i.price,
-            quantity: i.quantity,
-            imageUrl: i.imageUrl,
-          })),
+        // Guest — save to DB so admin can see it
+        const order = await createGuestOrder({
+          items: cartItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
           shippingAddress: shipping,
-          total,
-          status: "pending",
-          paymentStatus: "paid",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
+          paymentIntentId: result.paymentIntent?.id,
+        }).unwrap();
         dispatch(clearLocalCart());
-        onSuccess(mockOrder);
+        onSuccess(order);
       }
     } catch (err: any) {
       setCardError(err?.data?.message ?? "Something went wrong. Please try again.");

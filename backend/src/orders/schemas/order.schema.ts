@@ -24,8 +24,8 @@ class ShippingAddress {
 
 @Schema({ timestamps: true })
 export class Order {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  userId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: false, default: null })
+  userId: Types.ObjectId | null;
 
   @Prop({ type: [OrderItem], required: true })
   items: OrderItem[];

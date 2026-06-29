@@ -41,6 +41,33 @@ export class OrdersService {
     return order.save();
   }
 
+  async createGuest(dto: CreateOrderDto): Promise<OrderDocument> {
+    const items = [];
+    let total = 0;
+    for (const item of dto.items) {
+      const product = await this.productsService.findById(item.productId);
+      const lineTotal = product.price * item.quantity;
+      total += lineTotal;
+      items.push({
+        productId: item.productId,
+        name: product.name,
+        price: product.price,
+        quantity: item.quantity,
+        imageUrl: product.imageUrl,
+      });
+    }
+    const order = new this.orderModel({
+      userId: null,
+      items,
+      shippingAddress: dto.shippingAddress,
+      total: Math.round(total * 100) / 100,
+      status: 'pending',
+      paymentStatus: dto.paymentIntentId ? 'paid' : 'pending',
+      ...(dto.paymentIntentId && { paymentIntentId: dto.paymentIntentId }),
+    });
+    return order.save();
+  }
+
   async findMyOrders(userId: string): Promise<OrderDocument[]> {
     return this.orderModel
       .find({ userId: new Types.ObjectId(userId) })

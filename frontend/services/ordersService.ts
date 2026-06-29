@@ -8,6 +8,11 @@ export const ordersService = baseApi.injectEndpoints({
       invalidatesTags: ["Order", "Cart"],
     }),
 
+    createGuestOrder: build.mutation<Order, CreateOrderPayload>({
+      query: (body) => ({ url: "/orders/guest", method: "POST", body }),
+      invalidatesTags: [{ type: "Order", id: "ADMIN_LIST" }],
+    }),
+
     getOrders: build.query<Order[], void>({
       query: () => "/orders/my",
       providesTags: (result) =>
@@ -39,6 +44,7 @@ export const ordersService = baseApi.injectEndpoints({
 
 export const {
   useCreateOrderMutation,
+  useCreateGuestOrderMutation,
   useGetOrdersQuery,
   useGetOrderByIdQuery,
   useGetAllOrdersQuery,
