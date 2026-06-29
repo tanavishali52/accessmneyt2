@@ -32,7 +32,7 @@ export function CatalogSection() {
   // ── Read URL state ──
   const [search, setSearch] = useState(searchParams.get("q") ?? "");
   const [categories, setCategories] = useState<string[]>(
-    searchParams.get("category") ? [searchParams.get("category")!] : []
+    searchParams.getAll("category")
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
   const [sortBy, setSortBy] = useState<string>(searchParams.get("sortBy") ?? "newest");
@@ -43,14 +43,14 @@ export function CatalogSection() {
   // Debounce search -> URL sync
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const syncUrl = useCallback(
-    (overrides: Record<string, string | number | null> = {}) => {
+    (overrides: Record<string, any> = {}) => {
       const params = new URLSearchParams();
-      const q = overrides.q !== undefined ? String(overrides.q ?? "") : search;
-      const cat = overrides.category !== undefined ? String(overrides.category ?? "") : categories[0] ?? "";
+      const q    = overrides.q !== undefined ? String(overrides.q ?? "") : search;
+      const cats: string[] = overrides.categories !== undefined ? overrides.categories : categories;
       const sort = overrides.sortBy !== undefined ? String(overrides.sortBy) : sortBy;
-      const pg = overrides.page !== undefined ? Number(overrides.page) : page;
+      const pg   = overrides.page !== undefined ? Number(overrides.page) : page;
       if (q) params.set("q", q);
-      if (cat) params.set("category", cat);
+      cats.forEach((c) => params.append("category", c));
       if (sort !== "newest") params.set("sortBy", sort);
       if (pg > 1) params.set("page", String(pg));
       router.replace(`?${params.toString()}`, { scroll: false });
@@ -68,7 +68,7 @@ export function CatalogSection() {
   const handleCategory = (selected: string[]) => {
     setCategories(selected);
     setPage(1);
-    syncUrl({ category: selected[0] ?? null, page: 1 });
+    syncUrl({ categories: selected, page: 1 });
   };
 
   const handleSort = (value: string) => {
@@ -100,7 +100,7 @@ export function CatalogSection() {
   // ── Fetch products from API ──
   const { data, isLoading, isFetching } = useGetProductsQuery({
     search: search || undefined,
-    category: categories[0] || undefined,
+    category: categories.length > 0 ? categories.join(",") : undefined,
     minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
     maxPrice: priceRange[1] < 500 ? priceRange[1] : undefined,
     sortBy: sortBy as any,

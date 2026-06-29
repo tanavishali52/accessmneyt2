@@ -118,6 +118,36 @@ function OrderSidebar({ items, subtotal }: { items: CartItem[]; subtotal: number
   );
 }
 
+// ─── Payment method selector ──────────────────────────────────────────────────
+
+type PaymentMethod = "card" | "cod";
+
+function PaymentMethodSelector({ value, onChange }: { value: PaymentMethod; onChange: (v: PaymentMethod) => void }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 mb-5">
+      {([
+        { id: "card" as const, label: "Credit / Debit Card", icon: "💳", desc: "Pay securely via Stripe" },
+        { id: "cod"  as const, label: "Cash on Delivery",    icon: "💵", desc: "Pay when order arrives" },
+      ] as const).map((opt) => (
+        <button
+          key={opt.id}
+          type="button"
+          onClick={() => onChange(opt.id)}
+          className={`flex flex-col items-start gap-1 p-3 rounded-xl border-2 text-left transition-all ${
+            value === opt.id
+              ? "border-violet-600 bg-violet-50 dark:bg-violet-950"
+              : "border-zinc-200 dark:border-zinc-700 hover:border-violet-300 dark:hover:border-violet-700"
+          }`}
+        >
+          <span className="text-xl">{opt.icon}</span>
+          <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{opt.label}</span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">{opt.desc}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ─── Stripe card element styles ───────────────────────────────────────────────
 
 const CARD_ELEMENT_OPTIONS = {
@@ -173,9 +203,10 @@ function PaymentForm({
   const [clearServerCart]     = useClearCartMutation();
   const dispatch              = useAppDispatch();
 
-  const [placing, setPlacing]       = useState(false);
-  const [cardError, setCardError]   = useState<string | null>(null);
-  const [isDark, setIsDark]         = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
+  const [placing, setPlacing]             = useState(false);
+  const [cardError, setCardError]         = useState<string | null>(null);
+  const [isDark, setIsDark]               = useState(false);
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
@@ -184,47 +215,43 @@ function PaymentForm({
   const total = subtotal + shippingCost;
 
   const handlePay = async () => {
-    if (!stripe || !elements) return;
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) return;
-
     setPlacing(true);
     setCardError(null);
 
     try {
-      // 1. Create PaymentIntent on backend
-      const { clientSecret } = await createPaymentIntent({ amount: total, currency: "gbp" }).unwrap();
+      let paymentIntentId: string | undefined;
 
-      // 2. Confirm payment with Stripe
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement,
-          billing_details: { name: shipping.fullName },
-        },
-      });
+      if (paymentMethod === "card") {
+        // Card payment via Stripe
+        if (!stripe || !elements) return;
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) return;
 
-      if (result.error) {
-        setCardError(result.error.message ?? "Payment failed. Please try again.");
-        setPlacing(false);
-        return;
+        const { clientSecret } = await createPaymentIntent({ amount: total, currency: "gbp" }).unwrap();
+        const result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: { card: cardElement, billing_details: { name: shipping.fullName } },
+        });
+        if (result.error) {
+          setCardError(result.error.message ?? "Payment failed. Please try again.");
+          setPlacing(false);
+          return;
+        }
+        paymentIntentId = result.paymentIntent?.id;
       }
+      // COD — no Stripe call, paymentIntentId stays undefined
 
-      // 3. Payment succeeded — place the order
+      const orderPayload = {
+        items: cartItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+        shippingAddress: shipping,
+        ...(paymentIntentId ? { paymentIntentId } : {}),
+      };
+
       if (isLoggedIn) {
-        const order = await createOrder({
-          items: cartItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
-          shippingAddress: shipping,
-          paymentIntentId: result.paymentIntent?.id,
-        }).unwrap();
+        const order = await createOrder(orderPayload).unwrap();
         try { await clearServerCart().unwrap(); } catch { /* ignore */ }
         onSuccess(order);
       } else {
-        // Guest — save to DB so admin can see it
-        const order = await createGuestOrder({
-          items: cartItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
-          shippingAddress: shipping,
-          paymentIntentId: result.paymentIntent?.id,
-        }).unwrap();
+        const order = await createGuestOrder(orderPayload).unwrap();
         dispatch(clearLocalCart());
         onSuccess(order);
       }
@@ -242,9 +269,19 @@ function PaymentForm({
         <Heading size="lg">Payment details</Heading>
       </div>
 
-      <Alert variant="info" className="mb-5">
-        <strong>Test mode.</strong> Use card <span className="font-mono">4242 4242 4242 4242</span>, any future expiry, any CVV.
-      </Alert>
+      <PaymentMethodSelector value={paymentMethod} onChange={setPaymentMethod} />
+
+      {paymentMethod === "card" && (
+        <Alert variant="info" className="mb-5">
+          <strong>Test mode.</strong> Use card <span className="font-mono">4242 4242 4242 4242</span>, any future expiry, any CVV.
+        </Alert>
+      )}
+
+      {paymentMethod === "cod" && (
+        <Alert variant="warning" className="mb-5">
+          <strong>Cash on Delivery:</strong> Please have the exact amount ready when your order arrives.
+        </Alert>
+      )}
 
       {cardError && (
         <Alert variant="danger" className="mb-4" onClose={() => setCardError(null)}>
@@ -252,8 +289,8 @@ function PaymentForm({
         </Alert>
       )}
 
-      {/* Stripe CardElement */}
-      <div className="mb-5">
+      {/* Stripe CardElement — only shown for card payment */}
+      {paymentMethod === "card" && <div className="mb-5">
         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
           Card details
         </label>
@@ -263,7 +300,7 @@ function PaymentForm({
         <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1.5 flex items-center gap-1">
           <Lock className="h-3 w-3" /> Secured by Stripe — your card details are never stored on our servers
         </p>
-      </div>
+      </div>}
 
       <Divider />
 
@@ -289,11 +326,11 @@ function PaymentForm({
           size="lg"
           fullWidth
           loading={placing}
-          disabled={!stripe || placing}
+          disabled={placing || (paymentMethod === "card" && !stripe)}
           leftIcon={<Lock className="h-4 w-4" />}
           onClick={handlePay}
         >
-          Pay {formatPrice(total)}
+          {paymentMethod === "cod" ? `Place Order — ${formatPrice(total)}` : `Pay ${formatPrice(total)}`}
         </Button>
       </div>
     </Card>
@@ -368,7 +405,9 @@ export function CheckoutSection() {
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-zinc-500 dark:text-zinc-400">Payment</span>
-            <Badge variant="success" dot>Paid via Stripe</Badge>
+            <Badge variant={placedOrder.paymentStatus === "paid" ? "success" : "warning"} dot>
+              {placedOrder.paymentStatus === "paid" ? "Paid via Stripe" : "Cash on Delivery"}
+            </Badge>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-zinc-500 dark:text-zinc-400">Total</span>

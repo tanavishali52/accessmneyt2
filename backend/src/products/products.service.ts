@@ -11,7 +11,7 @@ export class ProductsService {
 
   async findAll(query: {
     search?: string;
-    category?: string;
+    category?: string | string[];
     minPrice?: number;
     maxPrice?: number;
     sortBy?: string;
@@ -22,7 +22,14 @@ export class ProductsService {
 
     const filter: any = {};
     if (search) filter.name = { $regex: search, $options: 'i' };
-    if (category) filter.category = { $regex: `^${category}$`, $options: 'i' };
+    if (category) {
+      const cats = Array.isArray(category) ? category : category.split(',').map((c) => c.trim());
+      if (cats.length === 1) {
+        filter.category = { $regex: `^${cats[0]}$`, $options: 'i' };
+      } else if (cats.length > 1) {
+        filter.category = { $in: cats.map((c) => new RegExp(`^${c}$`, 'i')) };
+      }
+    }
     if (minPrice !== undefined || maxPrice !== undefined) {
       filter.price = {};
       if (minPrice !== undefined) filter.price.$gte = Number(minPrice);
