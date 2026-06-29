@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ReduxProvider } from "@/components/providers/ReduxProvider";
+import { ReduxProvider } from "@/custom-components/providers/ReduxProvider";
 
 const inter = Inter({
   variable: "--font-inter",
