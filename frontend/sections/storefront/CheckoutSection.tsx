@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -21,7 +21,9 @@ import { Divider } from "@/custom-components/ui/Divider";
 import { Badge } from "@/custom-components/ui/Badge";
 import { Alert } from "@/custom-components/ui/Alert";
 import { Card } from "@/custom-components/ui/Card";
-import type { ShippingAddress, Order, OrderItem } from "@/types";
+import { useGetCartQuery, useClearCartMutation } from "@/services/cartService";
+import { useCreateOrderMutation } from "@/services/ordersService";
+import type { ShippingAddress, Order, OrderItem, CartItem } from "@/types";
 
 // ─── Step indicator ───────────────────────────────────────────────────────────
 
@@ -35,9 +37,9 @@ function StepIndicator({ current }: { current: number }) {
   return (
     <div className="flex items-center justify-center mb-8 sm:mb-10">
       {STEPS.map((step, i) => {
-        const done    = current > step.id;
-        const active  = current === step.id;
-        const Icon    = step.icon;
+        const done   = current > step.id;
+        const active = current === step.id;
+        const Icon   = step.icon;
         return (
           <div key={step.id} className="flex items-center">
             <div className="flex flex-col items-center gap-1.5">
@@ -64,9 +66,7 @@ function StepIndicator({ current }: { current: number }) {
 
 // ─── Order summary sidebar ────────────────────────────────────────────────────
 
-type CartItemLike = { productId: string; name: string; price: number; imageUrl: string; quantity: number; stock: number };
-
-function OrderSidebar({ items, subtotal }: { items: CartItemLike[]; subtotal: number }) {
+function OrderSidebar({ items, subtotal }: { items: CartItem[]; subtotal: number }) {
   const shipping = subtotal >= 50 ? 0 : 4.99;
   return (
     <Card padding="lg" className="sticky top-20 space-y-4">
@@ -112,25 +112,36 @@ function OrderSidebar({ items, subtotal }: { items: CartItemLike[]; subtotal: nu
 // ─── Main section ─────────────────────────────────────────────────────────────
 
 export function CheckoutSection() {
-  const dispatch  = useAppDispatch();
+  const dispatch = useAppDispatch();
   const localItems = useAppSelector((s) => s.cart.localItems);
   const { user, role } = useAppSelector((s) => s.auth);
+
+  const isLoggedIn = role !== "guest";
+
+  // Server cart for logged-in users
+  const { data: serverCart } = useGetCartQuery(undefined, { skip: !isLoggedIn });
+  const [createOrder] = useCreateOrderMutation();
+  const [clearServerCart] = useClearCartMutation();
+
+  // Single source of truth for items
+  const cartItems: CartItem[] = isLoggedIn
+    ? (serverCart?.items ?? [])
+    : localItems;
 
   const [step, setStep]               = useState(1);
   const [shipping, setShipping]       = useState<ShippingAddress | null>(null);
   const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
   const [placing, setPlacing]         = useState(false);
+  const [orderError, setOrderError]   = useState<string | null>(null);
 
-  const subtotal = localItems.reduce((s, i) => s + i.price * i.quantity, 0);
+  const subtotal     = cartItems.reduce((s, i) => s + i.price * i.quantity, 0);
   const shippingCost = subtotal >= 50 ? 0 : 4.99;
 
-  // Step 1 — Shipping form
   const shippingForm = useForm<ShippingFormValues>({
     resolver: zodResolver(shippingSchema),
     defaultValues: { fullName: user?.name ?? "", address: "", city: "", postcode: "", country: "GB" },
   });
 
-  // Step 2 — Payment form
   const paymentForm = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
     defaultValues: { cardNumber: "4242 4242 4242 4242", expiry: "12/26", cvv: "123", nameOnCard: user?.name ?? "" },
@@ -145,7 +156,7 @@ export function CheckoutSection() {
   ];
 
   // Empty cart guard
-  if (localItems.length === 0 && !placedOrder) {
+  if (cartItems.length === 0 && !placedOrder) {
     return (
       <div className="max-w-lg mx-auto px-4 py-16 text-center">
         <ShoppingBag className="h-12 w-12 text-zinc-300 dark:text-zinc-600 mx-auto mb-4" />
@@ -156,7 +167,7 @@ export function CheckoutSection() {
     );
   }
 
-  // Step 3 — Confirmation (mock order placed)
+  // Step 3 — Confirmation
   if (step === 3 && placedOrder) {
     return (
       <div className="max-w-lg mx-auto px-4 py-12 sm:py-16 text-center">
@@ -171,7 +182,7 @@ export function CheckoutSection() {
         <Card padding="md" className="text-left mb-6 space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-zinc-500 dark:text-zinc-400">Order ID</span>
-            <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-50">{placedOrder._id}</span>
+            <span className="font-mono font-semibold text-zinc-900 dark:text-zinc-50 text-xs break-all">{placedOrder._id}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-zinc-500 dark:text-zinc-400">Status</span>
@@ -188,7 +199,7 @@ export function CheckoutSection() {
         </Card>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          {role !== "guest" && (
+          {isLoggedIn && (
             <Link href="/orders">
               <Button variant="primary" leftIcon={<Package className="h-4 w-4" />}>View my orders</Button>
             </Link>
@@ -206,31 +217,48 @@ export function CheckoutSection() {
   };
 
   const handlePaymentSubmit = async () => {
+    if (!shipping) return;
     setPlacing(true);
-    // Mock: create order object locally (backend wired in Phase 6)
-    await new Promise((r) => setTimeout(r, 1200));
-    const mockOrder: Order = {
-      _id: `ORD-${Date.now().toString(36).toUpperCase()}`,
-      userId: user?._id ?? "guest",
-      items: localItems.map((i): OrderItem => ({
-        productId: i.productId,
-        name: i.name,
-        price: i.price,
-        quantity: i.quantity,
-        imageUrl: i.imageUrl,
-      })),
-      shippingAddress: shipping!,
-      total: subtotal + shippingCost,
-      status: "pending",
-      paymentStatus: "paid",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    setPlacedOrder(mockOrder);
-    dispatch(clearLocalCart());
-    setStep(3);
-    setPlacing(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setOrderError(null);
+
+    try {
+      if (isLoggedIn) {
+        // Place real order via API
+        const order = await createOrder({
+          items: cartItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+          shippingAddress: shipping,
+        }).unwrap();
+        setPlacedOrder(order);
+      } else {
+        // Guest: mock order, clear local cart
+        await new Promise((r) => setTimeout(r, 1200));
+        const mockOrder: Order = {
+          _id: `ORD-${Date.now().toString(36).toUpperCase()}`,
+          userId: "guest",
+          items: cartItems.map((i): OrderItem => ({
+            productId: i.productId,
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+            imageUrl: i.imageUrl,
+          })),
+          shippingAddress: shipping,
+          total: subtotal + shippingCost,
+          status: "pending",
+          paymentStatus: "paid",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setPlacedOrder(mockOrder);
+        dispatch(clearLocalCart());
+      }
+      setStep(3);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      setOrderError("Failed to place order. Please try again.");
+    } finally {
+      setPlacing(false);
+    }
   };
 
   return (
@@ -249,11 +277,11 @@ export function CheckoutSection() {
                 <Heading size="lg">Shipping address</Heading>
               </div>
               <form onSubmit={shippingForm.handleSubmit(handleShippingSubmit)} className="space-y-4">
-                <RHFInput name="fullName" control={shippingForm.control} label="Full name" placeholder="Jane Smith" required />
-                <RHFInput name="address"  control={shippingForm.control} label="Street address" placeholder="123 High Street" required />
+                <RHFInput name="fullName" control={shippingForm.control} label="Full name"       placeholder="Jane Smith"   required />
+                <RHFInput name="address"  control={shippingForm.control} label="Street address"  placeholder="123 High Street" required />
                 <div className="grid grid-cols-2 gap-3">
-                  <RHFInput name="city"     control={shippingForm.control} label="City"     placeholder="London"  required />
-                  <RHFInput name="postcode" control={shippingForm.control} label="Postcode" placeholder="SW1A 1AA" required />
+                  <RHFInput name="city"     control={shippingForm.control} label="City"     placeholder="London"    required />
+                  <RHFInput name="postcode" control={shippingForm.control} label="Postcode" placeholder="SW1A 1AA"  required />
                 </div>
                 <RHFSelect name="country" control={shippingForm.control} label="Country" options={COUNTRY_OPTIONS} required />
                 <Button type="submit" variant="primary" size="lg" fullWidth rightIcon={<ChevronRight className="h-4 w-4" />}>
@@ -275,6 +303,12 @@ export function CheckoutSection() {
                 <strong>Test mode.</strong> Use card <span className="font-mono">4242 4242 4242 4242</span>, any future expiry, any CVV.
               </Alert>
 
+              {orderError && (
+                <Alert variant="danger" className="mb-4" onClose={() => setOrderError(null)}>
+                  {orderError}
+                </Alert>
+              )}
+
               <form onSubmit={paymentForm.handleSubmit(handlePaymentSubmit)} className="space-y-4">
                 <RHFInput
                   name="cardNumber"
@@ -285,14 +319,13 @@ export function CheckoutSection() {
                   leftIcon={<CreditCard className="h-4 w-4" />}
                 />
                 <div className="grid grid-cols-2 gap-3">
-                  <RHFInput name="expiry"      control={paymentForm.control} label="Expiry (MM/YY)" placeholder="12/26" required />
-                  <RHFInput name="cvv"         control={paymentForm.control} label="CVV"            placeholder="123"   required />
+                  <RHFInput name="expiry"    control={paymentForm.control} label="Expiry (MM/YY)" placeholder="12/26" required />
+                  <RHFInput name="cvv"       control={paymentForm.control} label="CVV"            placeholder="123"   required />
                 </div>
                 <RHFInput name="nameOnCard" control={paymentForm.control} label="Name on card" placeholder="Jane Smith" required />
 
                 <Divider />
 
-                {/* Shipping summary */}
                 {shipping && (
                   <div className="flex items-start gap-3 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700">
                     <MapPin className="h-4 w-4 text-zinc-400 dark:text-zinc-500 shrink-0 mt-0.5" />
@@ -319,7 +352,7 @@ export function CheckoutSection() {
 
         {/* Right — order summary */}
         <div className="lg:col-span-2">
-          <OrderSidebar items={localItems} subtotal={subtotal} />
+          <OrderSidebar items={cartItems} subtotal={subtotal} />
         </div>
       </div>
     </div>
