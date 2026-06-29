@@ -9,6 +9,7 @@ import { CartModule } from './cart/cart.module';
 import { SeedModule } from './seed/seed.module';
 import { UploadModule } from './upload/upload.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PaymentsModule } from './payments/payments.module';
     SeedModule,
     UploadModule,
     PaymentsModule,
+    ReviewsModule,
   ],
 })
 export class AppModule {}
