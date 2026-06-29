@@ -114,11 +114,11 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+        className="surface-glass border border-zinc-200 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-start justify-between px-6 py-4 border-b border-zinc-100 dark:border-zinc-800">
+        <div className="flex items-start justify-between px-6 py-4 border-b border-zinc-100 dark:border-white/10">
           <div>
             <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-0.5">Order</p>
             <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 font-mono">{order._id}</h2>
@@ -136,7 +136,7 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
           {/* Customer */}
           <section>
             <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-2">Customer</p>
-            <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl px-4 py-3">
+            <div className="bg-zinc-50 dark:bg-white/[0.05] rounded-xl px-4 py-3">
               <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{order.shippingAddress?.fullName ?? "—"}</p>
               <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">{"User " + order.userId.slice(-6)}</p>
             </div>
@@ -151,7 +151,7 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
               {order.items.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between bg-zinc-50 dark:bg-zinc-800/50 rounded-xl px-4 py-3"
+                  className="flex items-center justify-between bg-zinc-50 dark:bg-white/[0.05] rounded-xl px-4 py-3"
                 >
                   <div>
                     <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{item.name}</p>
@@ -170,7 +170,7 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
           {/* Payment & Total */}
           <section>
             <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-2">Payment</p>
-            <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl px-4 py-3 flex items-center justify-between">
+            <div className="bg-zinc-50 dark:bg-white/[0.05] rounded-xl px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Badge variant={PAYMENT_VARIANT[order.paymentStatus]} dot>
                   {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
@@ -183,7 +183,7 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
           {/* Status */}
           <section>
             <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-2">Order Status</p>
-            <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl px-4 py-3 flex items-center gap-3">
+            <div className="bg-zinc-50 dark:bg-white/[0.05] rounded-xl px-4 py-3 flex items-center gap-3">
               <Badge variant={STATUS_VARIANT[order.status]} dot>
                 {STATUS_LABEL[order.status]}
               </Badge>
@@ -196,7 +196,7 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-end">
+        <div className="px-6 py-4 border-t border-zinc-100 dark:border-white/10 flex justify-end">
           <Button variant="secondary" size="sm" onClick={onClose}>
             Close
           </Button>
@@ -210,10 +210,11 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
 
 export default function OrdersSection() {
   const { data: orders = [], isLoading } = useGetAllOrdersQuery();
-  const [updateOrderStatus] = useUpdateOrderStatusMutation();
+  const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
   const [activeStatus, setActiveStatus] = useState<OrderStatus | "all">("all");
   const [search, setSearch] = useState("");
   const [openOrder, setOpenOrder] = useState<Order | null>(null);
+  const [statusFeedback, setStatusFeedback] = useState<{ id: string; msg: string; ok: boolean } | null>(null);
 
   // Status counts from current orders state
   const statusCounts = ALL_STATUSES.reduce<Record<OrderStatus, number>>(
@@ -239,13 +240,18 @@ export default function OrdersSection() {
   });
 
   const handleStatusChange = async (orderId: string, status: string) => {
+    setStatusFeedback(null);
     try {
       await updateOrderStatus({ id: orderId, data: { status: status as OrderStatus } }).unwrap();
       if (openOrder?._id === orderId) {
         setOpenOrder((prev) => prev ? { ...prev, status: status as OrderStatus } : null);
       }
-    } catch {
-      // ignore
+      setStatusFeedback({ id: orderId, msg: `Status updated to ${status}`, ok: true });
+      setTimeout(() => setStatusFeedback(null), 3000);
+    } catch (err: any) {
+      const msg = err?.data?.message ?? "Failed to update status";
+      setStatusFeedback({ id: orderId, msg, ok: false });
+      setTimeout(() => setStatusFeedback(null), 4000);
     }
   };
 
@@ -253,6 +259,18 @@ export default function OrdersSection() {
 
   return (
     <AdminPageWrapper title="Orders" description="Manage and update order statuses">
+
+      {/* ── Status feedback toast ─────────────────────────────────────────── */}
+      {statusFeedback && (
+        <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-medium transition-all animate-slide-down ${
+          statusFeedback.ok
+            ? "bg-green-600 text-white"
+            : "bg-red-600 text-white"
+        }`}>
+          {statusFeedback.ok ? "✓" : "✗"} {statusFeedback.msg}
+        </div>
+      )}
+
       {/* ── Stat Chips ────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap gap-2">
         {ALL_STATUSES.map((s) => (
@@ -280,7 +298,7 @@ export default function OrdersSection() {
                 className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all ${
                   isActive
                     ? "bg-violet-600 border-violet-600 text-white shadow-sm shadow-violet-600/25"
-                    : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-violet-300 dark:hover:border-violet-700 hover:text-violet-600 dark:hover:text-violet-400"
+                    : "bg-white dark:bg-white/[0.04] border-zinc-200 dark:border-white/10 text-zinc-600 dark:text-zinc-400 hover:border-violet-300 dark:hover:border-violet-600 hover:text-violet-600 dark:hover:text-violet-400"
                 }`}
               >
                 {t === "all" ? "All" : STATUS_LABEL[t]}
@@ -298,7 +316,7 @@ export default function OrdersSection() {
               placeholder="Search order ID or customer…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-9 pl-8 pr-8 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+              className="w-full h-9 pl-8 pr-8 text-sm rounded-xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.05] text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
             />
             {search && (
               <button
@@ -317,11 +335,11 @@ export default function OrdersSection() {
 
       {/* ── Table ─────────────────────────────────────────────────────────── */}
       {isLoading ? (
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden">
+        <div className="surface-glass border border-zinc-200 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 dark:border-zinc-800 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+                <tr className="bg-zinc-50 dark:bg-white/[0.04] border-b border-zinc-100 dark:border-white/10 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
                   <th className="px-5 py-3 whitespace-nowrap">Order ID</th>
                   <th className="px-5 py-3 whitespace-nowrap">Customer</th>
                   <th className="px-5 py-3 whitespace-nowrap">Items</th>
@@ -364,11 +382,11 @@ export default function OrdersSection() {
           }
         />
       ) : (
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden">
+        <div className="surface-glass border border-zinc-200 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-100 dark:border-zinc-800 text-left text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+                <tr className="bg-zinc-50 dark:bg-white/[0.04] border-b border-zinc-100 dark:border-white/10 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
                   <th className="px-5 py-3 whitespace-nowrap">Order ID</th>
                   <th className="px-5 py-3 whitespace-nowrap">Customer</th>
                   <th className="px-5 py-3 whitespace-nowrap">Items</th>
@@ -379,11 +397,11 @@ export default function OrdersSection() {
                   <th className="px-5 py-3 whitespace-nowrap sr-only">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+              <tbody className="divide-y divide-zinc-100 dark:divide-white/[0.06]">
                 {filtered.map((order) => (
                   <tr
                     key={order._id}
-                    className="hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40 transition-colors"
+                    className="hover:bg-zinc-50/70 dark:hover:bg-white/[0.04] transition-colors"
                   >
                     {/* Order ID */}
                     <td className="px-5 py-3 whitespace-nowrap">
