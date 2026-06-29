@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, Eye } from "lucide-react";
+import { ShoppingCart, Eye, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/utils";
 import type { Product } from "@/types";
@@ -51,6 +51,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : null;
 
+  // Deterministic rating from product ID so it's stable per product
+  const idSum = product._id.split("").reduce((s, c) => s + c.charCodeAt(0), 0);
+  const rating = 3.5 + (idSum % 15) / 10;          // 3.5 – 4.9
+  const reviewCount = 20 + (idSum % 180);           // 20 – 199
+  const fullStars  = Math.floor(rating);
+  const halfStar   = rating - fullStars >= 0.5;
+  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+
   return (
     <Link href={`/products/${product._id}`} className={cn("group block", className)}>
       <div className="surface-glass border border-zinc-200 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 h-full flex flex-col">
@@ -84,6 +92,30 @@ export function ProductCard({ product, className }: ProductCardProps) {
         {/* Content */}
         <div className="flex flex-col flex-1 p-3 sm:p-4 gap-2">
           <Badge variant="default" size="sm" className="self-start">{product.category}</Badge>
+
+          {/* Star rating */}
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-0.5">
+              {Array.from({ length: fullStars }).map((_, i) => (
+                <Star key={`f${i}`} className="h-3 w-3 fill-amber-400 text-amber-400" />
+              ))}
+              {halfStar && (
+                <span className="relative h-3 w-3">
+                  <Star className="absolute h-3 w-3 text-zinc-300 dark:text-zinc-600" />
+                  <span className="absolute inset-0 overflow-hidden w-1/2">
+                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                  </span>
+                </span>
+              )}
+              {Array.from({ length: emptyStars }).map((_, i) => (
+                <Star key={`e${i}`} className="h-3 w-3 text-zinc-300 dark:text-zinc-600" />
+              ))}
+            </div>
+            <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
+              {rating.toFixed(1)} <span className="text-zinc-400">({reviewCount})</span>
+            </span>
+          </div>
+
           <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug flex-1">
             {product.name}
           </h3>

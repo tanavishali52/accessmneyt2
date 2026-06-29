@@ -31,6 +31,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── Light mode gradient background ────────────────────────────────────────
+   Soft violet → sky → emerald pastel sweep, fixed so it spans the whole
+   viewport regardless of page length. Sections are transparent in light mode
+   so this glows through everywhere. */
+body {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 20%, #e0f2fe 50%, #ecfdf5 80%, #fdf4ff 100%);
+  background-attachment: fixed;
+}
+
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar          { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track    { background: transparent; }
