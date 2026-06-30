@@ -1,15 +1,12 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, INestApplication } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  // Global prefix
+/** Apply all app-wide config — shared by local server and serverless handler. */
+function configure(app: INestApplication) {
   app.setGlobalPrefix('api');
 
-  // CORS for Next.js frontend
   app.enableCors({
     origin: [
       'http://localhost:3000',
@@ -21,28 +18,42 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
-  // Validation
   app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: false,
-      transform: true,
-    }),
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false, transform: true }),
   );
 
-  // Swagger / OpenAPI docs → http://localhost:3001/api/docs
   const swaggerConfig = new DocumentBuilder()
     .setTitle('ShopHub API')
     .setDescription('E-commerce storefront + admin API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, swaggerConfig));
+}
 
+// ── Serverless (Vercel) ──────────────────────────────────────────────────────
+// Bootstraps once and caches the underlying Express instance across invocations.
+let cachedServer: any = null;
+export async function bootstrapServerless() {
+  if (cachedServer) return cachedServer;
+  const app = await NestFactory.create(AppModule);
+  configure(app);
+  await app.init();
+  cachedServer = app.getHttpAdapter().getInstance();
+  return cachedServer;
+}
+
+// ── Local / traditional server ───────────────────────────────────────────────
+async function bootstrapLocal() {
+  const app = await NestFactory.create(AppModule);
+  configure(app);
   const port = process.env.PORT ?? 3001;
   await app.listen(port);
   console.log(`🚀 ShopHub API running on http://localhost:${port}/api`);
   console.log(`📚 Swagger docs at http://localhost:${port}/api/docs`);
 }
-bootstrap();
+
+// On Vercel the function handler drives the app, so we must NOT call listen().
+if (!process.env.VERCEL) {
+  bootstrapLocal();
+}
