@@ -5,6 +5,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
+import { existsSync } from 'fs';
 import { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -47,6 +48,15 @@ export class UploadController {
   @Get('files/:filename')
   @ApiOperation({ summary: 'Serve uploaded image file' })
   serveFile(@Param('filename') filename: string, @Res() res: Response) {
-    res.sendFile(join(process.cwd(), 'uploads', filename));
+    const filePath = join(process.cwd(), 'uploads', filename);
+    // Orphaned image (file deleted or never present on this machine): respond
+    // with a clean 404 instead of letting sendFile throw an unhandled ENOENT.
+    if (!existsSync(filePath)) {
+      res.status(404).json({ statusCode: 404, message: 'Image not found' });
+      return;
+    }
+    res.sendFile(filePath, (err) => {
+      if (err && !res.headersSent) res.status(404).end();
+    });
   }
 }
