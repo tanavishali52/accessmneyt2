@@ -4,6 +4,7 @@ import "./globals.css";
 import { ReduxProvider } from "@/custom-components/providers/ReduxProvider";
 import { AuthProvider } from "@/custom-components/providers/AuthProvider";
 import { ThemeProvider } from "@/custom-components/providers/ThemeProvider";
+import { WhatsAppWidget } from "@/custom-components/layout/WhatsAppWidget";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -31,10 +32,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900 dark:text-zinc-50 transition-colors duration-300">
+      <body className="min-h-full flex flex-col text-zinc-900 dark:text-zinc-50 transition-colors duration-300">
         <ReduxProvider>
           <ThemeProvider>
             <AuthProvider>{children}</AuthProvider>
+            <WhatsAppWidget />
           </ThemeProvider>
         </ReduxProvider>
       </body>

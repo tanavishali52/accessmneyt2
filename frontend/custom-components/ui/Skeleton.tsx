@@ -30,14 +30,21 @@ export function SkeletonText({ lines = 3, className }: { lines?: number; classNa
 }
 
 export function SkeletonCard({ className }: { className?: string }) {
+  // Mirrors the real ProductCard layout: square image, category pill,
+  // two title lines, then a price + add-to-cart row.
   return (
-    <div className={cn("bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 sm:p-4 space-y-3", className)}>
-      <Skeleton height="160px" rounded="lg" className="w-full sm:h-[180px]" />
-      <Skeleton height="16px" className="w-3/4" />
-      <Skeleton height="12px" className="w-1/2" />
-      <div className="flex justify-between items-center pt-1">
-        <Skeleton height="20px" className="w-1/4" />
-        <Skeleton height="36px" className="w-1/3" rounded="lg" />
+    <div className={cn("surface-glass border border-zinc-200 rounded-xl overflow-hidden h-full flex flex-col", className)}>
+      {/* Image */}
+      <div className="aspect-square w-full skeleton-shimmer" />
+      {/* Content */}
+      <div className="flex flex-col flex-1 p-3 sm:p-4 gap-2.5">
+        <div className="h-4 w-16 rounded-full skeleton-shimmer" />
+        <div className="h-3.5 w-11/12 rounded skeleton-shimmer" />
+        <div className="h-3.5 w-2/3 rounded skeleton-shimmer" />
+        <div className="flex items-center justify-between gap-2 mt-auto pt-2">
+          <div className="h-5 w-16 rounded skeleton-shimmer" />
+          <div className="h-8 w-16 rounded-lg skeleton-shimmer" />
+        </div>
       </div>
     </div>
   );

@@ -47,7 +47,7 @@ export function ShippingSection() {
   return (
     <div className="w-full">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-white to-zinc-50 dark:from-transparent dark:via-transparent dark:to-transparent py-14 lg:py-20">
+      <section className="relative overflow-hidden bg-transparent py-14 lg:py-20">
         <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-violet-200/40 dark:bg-violet-900/20 blur-3xl pointer-events-none" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}

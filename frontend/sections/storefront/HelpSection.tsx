@@ -22,7 +22,7 @@ export function HelpSection() {
   return (
     <div className="w-full">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-white to-zinc-50 dark:from-transparent dark:via-transparent dark:to-transparent py-16 lg:py-24">
+      <section className="relative overflow-hidden bg-transparent py-16 lg:py-24">
         <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-violet-200/40 dark:bg-violet-900/20 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-20 right-0 w-80 h-80 rounded-full bg-blue-200/30 dark:bg-blue-900/20 blur-3xl pointer-events-none" />
         <motion.div

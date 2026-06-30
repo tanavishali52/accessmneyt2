@@ -36,7 +36,8 @@ body {
    viewport regardless of page length. Sections are transparent in light mode
    so this glows through everywhere. */
 body {
-  background: linear-gradient(135deg, #ddd6fe 0%, #8d75ee 20%, #3facdf 50%, #5ea383 80%, #d681eb 100%);
+  /* Violet → indigo → blue → purple sweep, shared across every page */
+  background: linear-gradient(135deg, #DDD6FE 0%, #C7D2FE 32%, #BFDBFE 60%, #E9D5FF 100%);
   background-attachment: fixed;
 }
 
@@ -56,6 +57,19 @@ body {
 /* ─── Selection ──────────────────────────────────────────────────────────── */
 ::selection        { background: #EDE9FE; color: #09090B; }
 .dark ::selection  { background: #2E1065; color: #FAFAFA; }
+
+/* ─── Native <select> dropdown options ───────────────────────────────────────
+   The open options list is OS-rendered and ignores the control's Tailwind
+   colors, so a light control text on the default white popup becomes unreadable.
+   Pin readable colors for both themes. */
+option {
+  color: #18181B;            /* zinc-900 */
+  background-color: #FFFFFF;
+}
+.dark option {
+  color: #FAFAFA;            /* zinc-50 */
+  background-color: #1B1A2E; /* deep navy to match the aurora theme */
+}
 
 /* ─── Aurora dark background (teal → deep blue → violet) ─────────────────────
    Painted once on the body and held fixed, so the whole app shares a single
@@ -163,6 +177,23 @@ body {
 @keyframes marquee-rtl {
   from { transform: translateX(0);     }
   to   { transform: translateX(-50%);  }
+}
+
+/* Skeleton shimmer — a soft highlight sweeping right→left, theme-aware */
+.skeleton-shimmer {
+  background-color: rgba(9, 9, 11, 0.07);
+  background-image: linear-gradient(90deg, transparent 0%, rgba(9,9,11,0.05) 50%, transparent 100%);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  /* `reverse` sweeps the highlight right → left */
+  animation: shimmer 1.5s ease-in-out infinite reverse;
+}
+.dark .skeleton-shimmer {
+  background-color: rgba(255, 255, 255, 0.08);
+  background-image: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.10) 50%, transparent 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer { animation: none; }
 }
 
 .animate-fade-in    { animation: fade-in    0.25s ease both; }

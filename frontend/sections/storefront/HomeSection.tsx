@@ -150,10 +150,11 @@ export function HomeSection() {
     <div className="w-full">
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-violet-50 via-white to-zinc-50 dark:from-transparent dark:via-transparent dark:to-transparent py-16 lg:py-24">
-        {/* Background orbs */}
-        <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-violet-200/40 dark:bg-violet-900/20 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 right-0 w-80 h-80 rounded-full bg-blue-200/30 dark:bg-blue-900/20 blur-3xl pointer-events-none" />
+      <section className="relative overflow-hidden bg-transparent py-16 lg:py-24">
+        {/* Background orbs — layered glow for depth */}
+        <div className="absolute -top-24 -left-20 w-96 h-96 rounded-full bg-violet-300/45 dark:bg-violet-800/25 blur-3xl pointer-events-none" />
+        <div className="absolute top-8 right-4 w-72 h-72 rounded-full bg-fuchsia-200/45 dark:bg-fuchsia-900/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 right-10 w-80 h-80 rounded-full bg-blue-300/40 dark:bg-blue-800/25 blur-3xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
@@ -204,48 +205,49 @@ export function HomeSection() {
               </div>
             </motion.div>
 
-            {/* Right: floating product cards */}
+            {/* Right: floating product cards — circular 360° orbit */}
             <motion.div
-              variants={{
-                hidden: {},
-                show: { transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
-              }}
-              initial="hidden"
-              animate="show"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
               className="relative w-full max-w-sm lg:max-w-md h-80 lg:h-96 shrink-0 hidden sm:block"
             >
-              {HERO_IMAGES.map((img, i) => (
-                <motion.div
-                  key={i}
-                  variants={{
-                    hidden: {
-                      opacity: 0,
-                      scale: 0.7,
-                      y: i === 0 ? -40 : i === 1 ? 40 : 0,
-                      x: i === 2 ? -40 : 0,
-                      rotate: i === 1 ? 15 : i === 2 ? -10 : 0,
-                    },
-                    show: {
-                      opacity: 1, scale: 1, y: 0, x: 0, rotate: 0,
-                      transition: { type: "spring", stiffness: 200, damping: 18, delay: i * 0.18 },
-                    },
-                  }}
-                  whileHover={{ scale: 1.08, zIndex: 20, transition: { type: "spring", stiffness: 320, damping: 16 } }}
-                  className={`absolute ${i === 0 ? "top-0 left-6 w-40 h-44" : i === 1 ? "top-6 right-0 w-44 h-48" : "bottom-0 left-0 w-44 h-44"} cursor-pointer`}
-                  style={{ zIndex: 3 - i }}
-                >
+              {/* Orbit ring — revolves the whole cluster a full 360° around the centre */}
+              <motion.div
+                className="absolute inset-0"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+              >
+                {HERO_IMAGES.map((img, i) => (
                   <motion.div
-                    animate={HERO_ANIMATIONS[i].animate}
-                    transition={HERO_ANIMATIONS[i].transition}
-                    className={`relative w-full h-full rounded-2xl overflow-hidden border-4 border-white dark:border-zinc-800 shadow-xl ${img.bg}`}
-                    style={{ transformStyle: "preserve-3d" }}
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.6 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 18, delay: 0.3 + i * 0.15 }}
+                    whileHover={{ scale: 1.08, zIndex: 20 }}
+                    className={`absolute ${i === 0 ? "top-0 left-6 w-40 h-44" : i === 1 ? "top-6 right-0 w-44 h-48" : "bottom-0 left-0 w-44 h-44"} cursor-pointer`}
+                    style={{ zIndex: 3 - i }}
                   >
-                    <Image src={img.src} alt={img.label} fill className="object-cover" sizes="200px" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                    <span className="absolute bottom-2 left-2 text-[10px] font-bold text-white uppercase tracking-wider">{img.label}</span>
+                    {/* Counter-rotate so each card stays upright while it orbits */}
+                    <motion.div
+                      className="w-full h-full"
+                      animate={{ rotate: -360 }}
+                      transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+                    >
+                      <motion.div
+                        animate={HERO_ANIMATIONS[i].animate}
+                        transition={HERO_ANIMATIONS[i].transition}
+                        className={`relative w-full h-full rounded-2xl overflow-hidden border-4 border-white dark:border-zinc-800 shadow-xl ${img.bg}`}
+                        style={{ transformStyle: "preserve-3d" }}
+                      >
+                        <Image src={img.src} alt={img.label} fill className="object-cover" sizes="200px" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                        <span className="absolute bottom-2 left-2 text-[10px] font-bold text-white uppercase tracking-wider">{img.label}</span>
+                      </motion.div>
+                    </motion.div>
                   </motion.div>
-                </motion.div>
-              ))}
+                ))}
+              </motion.div>
               {/* Floating badge */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.6 }}
