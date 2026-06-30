@@ -42,6 +42,9 @@ export class Order {
   @Prop({ default: 'pending', enum: ['pending','paid','failed'] })
   paymentStatus: string;
 
+  @Prop({ default: 'card', enum: ['card','cod'] })
+  paymentMethod: string;
+
   @Prop()
   paymentIntentId?: string;
 }

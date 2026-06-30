@@ -5,6 +5,7 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ApplySaleDto } from './dto/apply-sale.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -54,5 +55,21 @@ export class ProductsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.productsService.remove(id);
+  }
+
+  // Admin: apply a sale (discount % + optional end date)
+  @Post(':id/sale')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  applySale(@Param('id') id: string, @Body() dto: ApplySaleDto) {
+    return this.productsService.applySale(id, dto.discountPercent, dto.saleEndsAt);
+  }
+
+  // Admin: remove a sale (restore regular price)
+  @Delete(':id/sale')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  removeSale(@Param('id') id: string) {
+    return this.productsService.removeSale(id);
   }
 }

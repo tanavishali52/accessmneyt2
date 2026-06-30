@@ -1,4 +1,4 @@
-import { IsArray, IsObject, IsString, IsNumber, IsOptional, Min, ValidateNested, ArrayMinSize } from 'class-validator';
+import { IsArray, IsObject, IsString, IsNumber, IsOptional, IsIn, Min, ValidateNested, ArrayMinSize } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class OrderItemDto {
@@ -29,4 +29,8 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   paymentIntentId?: string;
+
+  @IsOptional()
+  @IsIn(['card', 'cod'])
+  paymentMethod?: string;
 }

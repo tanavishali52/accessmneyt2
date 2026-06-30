@@ -41,6 +41,7 @@ export interface Product {
   description: string;
   price: number;
   originalPrice?: number;
+  saleEndsAt?: string | null;
   imageUrl: string;
   category: string;
   stock: number;
@@ -127,6 +128,7 @@ export interface Order {
   total: number;
   status: OrderStatus;
   paymentStatus: "pending" | "paid" | "failed";
+  paymentMethod?: "card" | "cod";
   createdAt: string;
   updatedAt: string;
 }
@@ -135,6 +137,8 @@ export interface CreateOrderPayload {
   items: { productId: string; quantity: number }[];
   shippingAddress: ShippingAddress;
   paymentToken?: string;
+  paymentIntentId?: string;
+  paymentMethod?: "card" | "cod";
 }
 
 // ─── API Shared ───────────────────────────────────────────────────────────────

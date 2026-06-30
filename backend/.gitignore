@@ -37,7 +37,9 @@ coverage/
 .DS_Store
 Thumbs.db
 
-.upload/
+# Uploaded images — keep the folder, ignore the files inside
+uploads/*
+!uploads/.gitkeep
 
 # Caches
 .npm

@@ -48,6 +48,21 @@ export const productsService = baseApi.injectEndpoints({
       query: (id) => ({ url: `/products/${id}`, method: "DELETE" }),
       invalidatesTags: (_r, _e, id) => [{ type: "Product", id }, { type: "Product", id: "LIST" }],
     }),
+
+    // Admin: apply a % sale (with optional end date) and remove it
+    applySale: build.mutation<Product, { id: string; discountPercent: number; saleEndsAt?: string }>({
+      query: ({ id, discountPercent, saleEndsAt }) => ({
+        url: `/products/${id}/sale`,
+        method: "POST",
+        body: { discountPercent, ...(saleEndsAt ? { saleEndsAt } : {}) },
+      }),
+      invalidatesTags: (_r, _e, { id }) => [{ type: "Product", id }, { type: "Product", id: "LIST" }],
+    }),
+
+    removeSale: build.mutation<Product, string>({
+      query: (id) => ({ url: `/products/${id}/sale`, method: "DELETE" }),
+      invalidatesTags: (_r, _e, id) => [{ type: "Product", id }, { type: "Product", id: "LIST" }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -59,4 +74,6 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useApplySaleMutation,
+  useRemoveSaleMutation,
 } = productsService;

@@ -17,6 +17,10 @@ export class Product {
   @Prop({ min: 0 })
   originalPrice: number;
 
+  // When set, the sale auto-reverts (price ← originalPrice) after this time.
+  @Prop({ default: null })
+  saleEndsAt: Date | null;
+
   @Prop({ required: true })
   imageUrl: string;
 

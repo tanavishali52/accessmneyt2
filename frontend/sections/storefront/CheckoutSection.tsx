@@ -243,6 +243,7 @@ function PaymentForm({
       const orderPayload = {
         items: cartItems.map((i) => ({ productId: i.productId, quantity: i.quantity })),
         shippingAddress: shipping,
+        paymentMethod,
         ...(paymentIntentId ? { paymentIntentId } : {}),
       };
 

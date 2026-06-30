@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Order, OrderDocument } from './schemas/order.schema';
+import { Order, OrderDocument, OrderStatus } from './schemas/order.schema';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { ProductsService } from '../products/products.service';
 
@@ -36,6 +36,7 @@ export class OrdersService {
       total: Math.round(total * 100) / 100,
       status: 'pending',
       paymentStatus: dto.paymentIntentId ? 'paid' : 'pending',
+      paymentMethod: dto.paymentMethod ?? (dto.paymentIntentId ? 'card' : 'cod'),
       ...(dto.paymentIntentId && { paymentIntentId: dto.paymentIntentId }),
     });
     return order.save();
@@ -63,6 +64,7 @@ export class OrdersService {
       total: Math.round(total * 100) / 100,
       status: 'pending',
       paymentStatus: dto.paymentIntentId ? 'paid' : 'pending',
+      paymentMethod: dto.paymentMethod ?? (dto.paymentIntentId ? 'card' : 'cod'),
       ...(dto.paymentIntentId && { paymentIntentId: dto.paymentIntentId }),
     });
     return order.save();
@@ -87,11 +89,15 @@ export class OrdersService {
   }
 
   async updateStatus(id: string, status: string): Promise<OrderDocument> {
-    const order = await this.orderModel
-      .findByIdAndUpdate(id, { status }, { new: true })
-      .exec();
+    const order = await this.orderModel.findById(id).exec();
     if (!order) throw new NotFoundException('Order not found');
-    return order;
+
+    order.status = status as OrderStatus;
+    // Cash-on-delivery is collected on delivery, so mark it paid once delivered.
+    if (status === 'delivered' && order.paymentMethod === 'cod' && order.paymentStatus !== 'paid') {
+      order.paymentStatus = 'paid';
+    }
+    return order.save();
   }
 
   async count(): Promise<number> {

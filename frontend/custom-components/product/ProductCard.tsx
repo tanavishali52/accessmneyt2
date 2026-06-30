@@ -48,9 +48,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
   const isLowStock    = product.stock > 0 && product.stock <= 5;
   const isOutOfStock  = product.stock === 0;
-  const discountPct   = product.originalPrice
-    ? Math.round((1 - product.price / product.originalPrice) * 100)
-    : null;
+  const isOnSale      = !!product.originalPrice && product.originalPrice > product.price;
+  const discountPct   = isOnSale ? Math.round((1 - product.price / product.originalPrice!) * 100) : null;
+  const saving        = isOnSale ? product.originalPrice! - product.price : 0;
 
   // Real review stats from the API (GET /reviews/:id/stats)
   const { data: stats, isLoading: statsLoading } = useGetReviewStatsQuery(product._id);
@@ -76,7 +76,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
           {/* Badges */}
           <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
             {discountPct && (
-              <span className="bg-red-600 text-white text-[11px] font-bold px-2 py-0.5 rounded">
+              <span className="bg-gradient-to-r from-red-600 to-orange-500 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-md shadow-sm shadow-red-600/30">
                 -{discountPct}%
               </span>
             )}
@@ -134,11 +134,20 @@ export function ProductCard({ product, className }: ProductCardProps) {
           <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50 line-clamp-2 leading-snug flex-1">
             {product.name}
           </h3>
-          <div className="flex items-center justify-between gap-2 mt-auto pt-2">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-base font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(product.price)}</span>
-              {product.originalPrice && (
-                <span className="text-xs text-zinc-400 line-through">{formatPrice(product.originalPrice)}</span>
+          <div className="flex items-end justify-between gap-2 mt-auto pt-2">
+            <div className="flex flex-col">
+              <div className="flex items-baseline gap-1.5">
+                <span className={cn("text-base font-bold", isOnSale ? "text-red-600 dark:text-red-400" : "text-zinc-900 dark:text-zinc-50")}>
+                  {formatPrice(product.price)}
+                </span>
+                {isOnSale && (
+                  <span className="text-xs text-zinc-400 line-through">{formatPrice(product.originalPrice!)}</span>
+                )}
+              </div>
+              {isOnSale && (
+                <span className="text-[10px] font-semibold text-green-600 dark:text-green-400">
+                  Save {formatPrice(saving)}
+                </span>
               )}
             </div>
             <Button

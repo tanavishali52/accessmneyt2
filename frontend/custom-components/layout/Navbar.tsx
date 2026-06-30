@@ -86,7 +86,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-white dark:bg-zinc-900/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 shadow-sm animate-slide-down">
+    <header className="sticky top-0 z-30 w-full bg-white/65 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-white/40 dark:border-white/10 shadow-sm animate-slide-down">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
@@ -209,7 +209,7 @@ export function Navbar() {
             {/* Cart */}
             <button
               onClick={() => dispatch(openCart())}
-              className="relative flex items-center justify-center h-10 w-10 rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="no-shine relative flex items-center justify-center h-10 w-10 rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               aria-label={`Cart — ${cartCount} items`}
             >
               <ShoppingCart className="h-5 w-5" />

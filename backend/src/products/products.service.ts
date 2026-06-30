@@ -20,6 +20,9 @@ export class ProductsService {
   }) {
     const { search, category, minPrice, maxPrice, sortBy = 'newest', page = 1, limit = 12 } = query;
 
+    // Lazily expire sales so listings (storefront /sale, shop, admin) stay accurate.
+    await this.revertExpiredSales();
+
     const filter: any = {};
     if (search) filter.name = { $regex: search, $options: 'i' };
     if (category) {
@@ -86,6 +89,51 @@ export class ProductsService {
   async remove(id: string): Promise<void> {
     const result = await this.productModel.findByIdAndDelete(id).exec();
     if (!result) throw new NotFoundException('Product not found');
+  }
+
+  // ── Sales ──────────────────────────────────────────────────────────────────
+
+  /** Reverts any sales whose end date has passed: price ← originalPrice, clear sale. */
+  async revertExpiredSales(): Promise<void> {
+    await this.productModel.updateMany(
+      { saleEndsAt: { $ne: null, $lte: new Date() } },
+      [
+        { $set: { price: { $ifNull: ['$originalPrice', '$price'] } } },
+        { $set: { originalPrice: null, saleEndsAt: null } },
+      ],
+    );
+  }
+
+  /** Apply a % discount. Keeps the regular price in originalPrice and lowers price. */
+  async applySale(id: string, discountPercent: number, saleEndsAt?: string): Promise<ProductDocument> {
+    const product = await this.productModel.findById(id).exec();
+    if (!product) throw new NotFoundException('Product not found');
+
+    // Base off the regular price (originalPrice if already on sale, else current price).
+    const regular = product.originalPrice && product.originalPrice > product.price
+      ? product.originalPrice
+      : product.price;
+
+    product.originalPrice = regular;
+    product.price = Math.round(regular * (1 - discountPercent / 100) * 100) / 100;
+    product.saleEndsAt = saleEndsAt ? new Date(saleEndsAt) : null;
+    return product.save();
+  }
+
+  /** Remove a sale: restore the regular price and clear sale fields. */
+  async removeSale(id: string): Promise<ProductDocument> {
+    const product = await this.productModel.findById(id).exec();
+    if (!product) throw new NotFoundException('Product not found');
+
+    const updated = await this.productModel.findByIdAndUpdate(
+      id,
+      {
+        $set: { price: product.originalPrice ?? product.price },
+        $unset: { originalPrice: '', saleEndsAt: '' },
+      },
+      { new: true },
+    ).exec();
+    return updated as ProductDocument;
   }
 
   async count(): Promise<number> {

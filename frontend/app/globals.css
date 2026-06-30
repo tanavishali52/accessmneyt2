@@ -196,6 +196,54 @@ option {
   .skeleton-shimmer { animation: none; }
 }
 
+/* Shine — a glossy light streak that periodically sweeps across an element.
+   Add `shine` to any element (it clips to the element's shape). */
+.shine { position: relative; overflow: hidden; }
+.shine::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 55%;
+  background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+  transform: translateX(-160%) skewX(-20deg);
+  animation: shine-sweep 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes shine-sweep {
+  0%      { transform: translateX(-160%) skewX(-20deg); }
+  55%, 100% { transform: translateX(260%) skewX(-20deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shine::after { animation: none; }
+}
+
+/* Button shine — a light streak that sweeps once on hover. Applied to EVERY button
+   app-wide (plus any element with `.btn-shine`, e.g. link-styled buttons). Opt out
+   with `.no-shine` on buttons whose children must overflow (e.g. a corner badge).
+   overflow clips the streak to the rounded shape but never the focus ring (a box-shadow). */
+.btn-shine,
+button:not(.no-shine) { position: relative; overflow: hidden; }
+.btn-shine::after,
+button:not(.no-shine)::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: 0; width: 50%;
+  background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  transform: translateX(-160%) skewX(-20deg);
+  pointer-events: none;
+}
+.btn-shine:hover::after,
+button:not(.no-shine):hover::after { animation: shine-sweep-once 0.7s ease-out; }
+.no-shine::after { content: none; }
+@keyframes shine-sweep-once {
+  from { transform: translateX(-160%) skewX(-20deg); }
+  to   { transform: translateX(260%) skewX(-20deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-shine:hover::after,
+  button:not(.no-shine):hover::after { animation: none; }
+}
+
 .animate-fade-in    { animation: fade-in    0.25s ease both; }
 .animate-slide-down { animation: slide-down 0.2s  ease both; }
 .animate-scale-in   { animation: scale-in   0.2s  ease both; }

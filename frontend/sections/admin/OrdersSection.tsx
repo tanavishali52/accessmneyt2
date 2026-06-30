@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Eye, Search, X, ShoppingBag } from "lucide-react";
+import { Eye, Search, X, ShoppingBag, Printer } from "lucide-react";
 import { useGetAllOrdersQuery, useUpdateOrderStatusMutation } from "@/services/ordersService";
 import type { Order, OrderStatus } from "@/types";
 import { formatPrice } from "@/lib/utils";
@@ -35,6 +35,17 @@ const PAYMENT_VARIANT: Record<Order["paymentStatus"], "success" | "warning" | "d
   failed:  "danger",
 };
 
+// What to show in the Payment column: Cash-on-delivery orders read "COD" until
+// they're delivered (then they become "Paid"); card orders use their status.
+function paymentDisplay(order: Order): { label: string; variant: "success" | "warning" | "danger" } {
+  if (order.paymentStatus === "paid") return { label: "Paid", variant: "success" };
+  if (order.paymentMethod === "cod") return { label: "COD", variant: "warning" };
+  return {
+    label: order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1),
+    variant: PAYMENT_VARIANT[order.paymentStatus],
+  };
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatOrderDate(iso: string): string {
@@ -43,6 +54,126 @@ function formatOrderDate(iso: string): string {
     month: "short",
     year: "numeric",
   }).format(new Date(iso));
+}
+
+// Generates a proper PDF invoice with jsPDF (loaded on demand) and opens it for
+// printing — falls back to a download if the print tab is blocked.
+async function printInvoice(order: Order) {
+  const { jsPDF } = await import("jspdf");
+  const autoTable = (await import("jspdf-autotable")).default;
+
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const M = 40;
+
+  // ── Header ──
+  doc.setFillColor(124, 58, 237);
+  doc.roundedRect(M, 40, 34, 34, 6, 6, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text("S", M + 17, 63, { align: "center" });
+
+  doc.setTextColor(24, 24, 27);
+  doc.setFontSize(16);
+  doc.text("ShopHub", M + 46, 58);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(113, 113, 122);
+  doc.text("shophub.com  -  support@shophub.com", M + 46, 70);
+
+  doc.setTextColor(124, 58, 237);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.text("INVOICE", pageW - M, 56, { align: "right" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(82, 82, 91);
+  doc.text(`# ${order._id}`, pageW - M, 70, { align: "right" });
+  doc.text(formatOrderDate(order.createdAt), pageW - M, 82, { align: "right" });
+
+  doc.setDrawColor(124, 58, 237);
+  doc.setLineWidth(1.5);
+  doc.line(M, 92, pageW - M, 92);
+
+  // ── Ship to / Details ──
+  const y = 118;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(161, 161, 170);
+  doc.text("SHIP TO", M, y);
+  doc.text("DETAILS", pageW - M, y, { align: "right" });
+
+  const addr = order.shippingAddress;
+  const shipLines = [
+    addr?.fullName ?? "-",
+    addr?.address ?? "",
+    `${addr?.city ?? ""}${addr?.postcode ? ", " + addr.postcode : ""}`,
+    addr?.country ?? "",
+  ].filter(Boolean);
+  const detailLines = [
+    order.userId ? "Registered customer" : "Guest checkout",
+    `Payment: ${order.paymentStatus}`,
+    `Status: ${order.status}`,
+  ];
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.setTextColor(24, 24, 27);
+  shipLines.forEach((line, i) => doc.text(String(line), M, y + 16 + i * 14));
+  detailLines.forEach((line, i) => doc.text(line, pageW - M, y + 16 + i * 14, { align: "right" }));
+
+  // ── Items table ──
+  autoTable(doc, {
+    startY: y + 16 + shipLines.length * 14 + 16,
+    head: [["Item", "Qty", "Price", "Amount"]],
+    body: order.items.map((it) => [
+      it.name,
+      String(it.quantity),
+      formatPrice(it.price),
+      formatPrice(it.price * it.quantity),
+    ]),
+    theme: "striped",
+    headStyles: { fillColor: [124, 58, 237], textColor: 255, halign: "left" },
+    columnStyles: { 1: { halign: "right" }, 2: { halign: "right" }, 3: { halign: "right" } },
+    styles: { fontSize: 10, cellPadding: 6 },
+    margin: { left: M, right: M },
+  });
+
+  // ── Totals ──
+  const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 18;
+  const itemsTotal = order.items.reduce((s, i) => s + i.price * i.quantity, 0);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(82, 82, 91);
+  doc.text("Subtotal", pageW - M - 140, finalY, { align: "left" });
+  doc.text(formatPrice(itemsTotal), pageW - M, finalY, { align: "right" });
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(24, 24, 27);
+  doc.text("Total", pageW - M - 140, finalY + 24, { align: "left" });
+  doc.text(formatPrice(order.total), pageW - M, finalY + 24, { align: "right" });
+
+  // ── Dispatch note ──
+  const noteY = finalY + 50;
+  doc.setFillColor(250, 245, 255);
+  doc.setDrawColor(233, 213, 255);
+  doc.roundedRect(M, noteY, pageW - M * 2, 34, 6, 6, "FD");
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(107, 33, 168);
+  doc.text("Please place this invoice inside the parcel before dispatch. Thank you for shopping with ShopHub!", M + 12, noteY + 21);
+
+  // ── Footer ──
+  doc.setFontSize(8);
+  doc.setTextColor(161, 161, 170);
+  doc.text("This is a computer-generated invoice.", pageW / 2, pageH - 30, { align: "center" });
+
+  // Open for printing; if the browser blocks the tab, download instead.
+  doc.autoPrint();
+  const opened = window.open(doc.output("bloburl"), "_blank");
+  if (!opened) doc.save(`Invoice-${order._id}.pdf`);
 }
 
 // ─── Stat Chips ───────────────────────────────────────────────────────────────
@@ -172,8 +303,8 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
             <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide mb-2">Payment</p>
             <div className="bg-zinc-50 dark:bg-white/[0.05] rounded-xl px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Badge variant={PAYMENT_VARIANT[order.paymentStatus]} dot>
-                  {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+                <Badge variant={paymentDisplay(order).variant} dot>
+                  {paymentDisplay(order).label}
                 </Badge>
               </div>
               <p className="text-base font-bold text-zinc-900 dark:text-zinc-50">{formatPrice(order.total)}</p>
@@ -196,9 +327,12 @@ function OrderDetailModal({ order, onClose, onStatusChange }: OrderDetailModalPr
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-zinc-100 dark:border-white/10 flex justify-end">
+        <div className="px-6 py-4 border-t border-zinc-100 dark:border-white/10 flex justify-end gap-2">
           <Button variant="secondary" size="sm" onClick={onClose}>
             Close
+          </Button>
+          <Button variant="primary" size="sm" onClick={() => printInvoice(order)} leftIcon={<Printer className="w-3.5 h-3.5" />}>
+            Print invoice
           </Button>
         </div>
       </div>
@@ -439,8 +573,8 @@ export default function OrdersSection() {
 
                     {/* Payment */}
                     <td className="px-5 py-3 whitespace-nowrap">
-                      <Badge variant={PAYMENT_VARIANT[order.paymentStatus]} dot>
-                        {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+                      <Badge variant={paymentDisplay(order).variant} dot>
+                        {paymentDisplay(order).label}
                       </Badge>
                     </td>
 
@@ -462,13 +596,24 @@ export default function OrdersSection() {
 
                     {/* Actions */}
                     <td className="px-5 py-3 whitespace-nowrap">
-                      <button
-                        onClick={() => setOpenOrder(order)}
-                        className="p-1.5 rounded-lg text-zinc-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-colors"
-                        aria-label={`View order ${order._id}`}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); printInvoice(order); }}
+                          className="p-1.5 rounded-lg text-zinc-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-colors"
+                          aria-label={`Print invoice for order ${order._id}`}
+                          title="Print invoice"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setOpenOrder(order)}
+                          className="p-1.5 rounded-lg text-zinc-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-colors"
+                          aria-label={`View order ${order._id}`}
+                          title="View details"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

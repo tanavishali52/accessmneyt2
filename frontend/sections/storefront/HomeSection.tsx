@@ -182,13 +182,13 @@ export function HomeSection() {
               {/* CTAs */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-8">
                 <Link href="/shop">
-                  <span className="group inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-bold px-7 py-3.5 rounded-2xl shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-200 hover:-translate-y-0.5">
+                  <span className="group btn-shine inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-bold px-7 py-3.5 rounded-2xl shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all duration-200 hover:-translate-y-0.5">
                     Shop Now
                     <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                   </span>
                 </Link>
                 <Link href="/sale">
-                  <span className="inline-flex items-center gap-2 bg-white/10 dark:bg-zinc-800 border border-violet-300 dark:border-violet-700 text-violet-700 dark:text-violet-300 text-sm font-bold px-7 py-3.5 rounded-2xl hover:bg-violet-50 dark:hover:bg-violet-950 hover:border-violet-500 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-sm">
+                  <span className="btn-shine inline-flex items-center gap-2 bg-white/10 dark:bg-zinc-800 border border-violet-300 dark:border-violet-700 text-violet-700 dark:text-violet-300 text-sm font-bold px-7 py-3.5 rounded-2xl hover:bg-violet-50 dark:hover:bg-violet-950 hover:border-violet-500 transition-all duration-200 hover:-translate-y-0.5 backdrop-blur-sm">
                     Sale Picks ⚡
                   </span>
                 </Link>
@@ -349,7 +349,7 @@ export function HomeSection() {
           </h2>
           <p className="text-zinc-400 text-base mb-8">Shop our deals on premium products. Ends soon.</p>
           <Link href="/sale">
-            <span className="inline-flex items-center gap-2 bg-white text-zinc-900 text-sm font-bold px-8 py-3.5 hover:bg-zinc-100 transition-colors">
+            <span className="btn-shine inline-flex items-center gap-2 bg-white text-zinc-900 text-sm font-bold px-8 py-3.5 hover:bg-zinc-100 transition-colors">
               SHOP DEALS <ArrowRight className="h-4 w-4" />
             </span>
           </Link>
