@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, type Transition, type TargetAndTransition } from "framer-motion";
 import {
-  ArrowRight, ChevronLeft, ChevronRight,
+  ArrowRight,
   Cpu, Shirt, BookOpen, Dumbbell, Home as HomeIcon, Tag,
   Truck, ShieldCheck, Award, RefreshCcw,
 } from "lucide-react";
 import { useGetProductsQuery } from "@/services/productsService";
 import { CATEGORIES } from "@/lib/constants";
-import { formatPrice } from "@/lib/utils";
 import { ProductCard } from "@/custom-components/product/ProductCard";
 import { SkeletonCard } from "@/custom-components/ui/Skeleton";
 
@@ -65,13 +63,10 @@ const HERO_ANIMATIONS: { animate: TargetAndTransition; transition: Transition }[
 // ─── Category Carousel ────────────────────────────────────────────────────────
 
 function CategoryCarousel({ category }: { category: string }) {
-  const [page, setPage] = useState(0);
   const { data, isLoading } = useGetProductsQuery({ category, limit: 20 });
   const products = data?.data ?? [];
-  const perPage = 4;
-  const maxPage = Math.max(0, Math.ceil(products.length / perPage) - 1);
-  const visible = products.slice(page * perPage, page * perPage + perPage);
-  const totalPages = maxPage + 1;
+  // More than 4 products → auto-sliding (right→left) marquee; otherwise a static grid.
+  const isSlider = products.length > 4;
 
   // Skeleton placeholder while this category's products load.
   if (isLoading) {
@@ -95,7 +90,7 @@ function CategoryCarousel({ category }: { category: string }) {
   return (
     <section className="py-8">
       {/* Header */}
-      <div className="flex items-end justify-between mb-5">
+      <div className="flex items-end justify-between mb-5 gap-4">
         <div>
           <p className="text-xs font-semibold tracking-widest text-violet-600 dark:text-violet-400 uppercase mb-1">
             Curated for you
@@ -107,36 +102,37 @@ function CategoryCarousel({ category }: { category: string }) {
             Handpicked favourites from this collection.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
-            disabled={page === 0}
-            className="h-8 w-8 rounded-full border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-30 transition-colors"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-            disabled={page >= totalPages - 1}
-            className="h-8 w-8 rounded-full border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-30 transition-colors"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-          <Link
-            href={`/shop?category=${encodeURIComponent(category)}`}
-            className="ml-1 text-xs font-semibold border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-          >
-            SHOP CATEGORY
-          </Link>
-        </div>
+        <Link
+          href={`/shop?category=${encodeURIComponent(category)}`}
+          className="shrink-0 text-xs font-semibold border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+        >
+          SHOP CATEGORY
+        </Link>
       </div>
 
-      {/* Product grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {visible.map((product) => (
-          <ProductCard key={product._id} product={product} />
-        ))}
-      </div>
+      {isSlider ? (
+        /* Auto-slider — items scroll right→left, the list is duplicated so the
+           loop is seamless, and it pauses on hover so cards stay clickable. */
+        <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_2%,black_98%,transparent)]">
+          <div className="flex w-max animate-marquee">
+            {[...products, ...products].map((product, i) => (
+              <div
+                key={`${product._id}-${i}`}
+                aria-hidden={i >= products.length}
+                className="w-60 sm:w-64 shrink-0 mr-4"
+              >
+                <ProductCard product={product} className="h-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {products.map((product) => (
+            <ProductCard key={product._id} product={product} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

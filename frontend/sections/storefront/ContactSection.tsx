@@ -6,6 +6,8 @@ import { Mail, Phone, MapPin, Clock, MessageCircle, CheckCircle2 } from "lucide-
 import { Input } from "@/custom-components/ui/Input";
 import { Textarea } from "@/custom-components/ui/Textarea";
 import { Button } from "@/custom-components/ui/Button";
+import { Alert } from "@/custom-components/ui/Alert";
+import { useSubmitContactMutation } from "@/services/contactService";
 
 const DETAILS = [
   { icon: Mail, label: "Email us", value: "support@shophub.com", sub: "We reply within a few hours" },
@@ -26,8 +28,9 @@ const EMPTY: FormState = { name: "", email: "", subject: "", message: "" };
 export function ContactSection() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<Partial<FormState>>({});
-  const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [submitContact, { isLoading: submitting }] = useSubmitContactMutation();
 
   const update = (key: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -48,13 +51,22 @@ export function ContactSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setApiError(null);
     if (!validate()) return;
-    setSubmitting(true);
-    // Simulated submission — wire to a real endpoint when available
-    await new Promise((r) => setTimeout(r, 900));
-    setSubmitting(false);
-    setSent(true);
-    setForm(EMPTY);
+    try {
+      await submitContact({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        subject: form.subject.trim(),
+        message: form.message.trim(),
+      }).unwrap();
+      setSent(true);
+      setForm(EMPTY);
+    } catch (err: unknown) {
+      const error = err as { data?: { message?: string | string[] } };
+      const msg = error?.data?.message;
+      setApiError(Array.isArray(msg) ? msg[0] : msg ?? "Couldn't send your message. Please try again.");
+    }
   };
 
   return (
@@ -125,6 +137,9 @@ export function ContactSection() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                 <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 mb-2">Send us a message</h2>
+                {apiError && (
+                  <Alert variant="danger" onClose={() => setApiError(null)}>{apiError}</Alert>
+                )}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <Input label="Your name" value={form.name} onChange={update("name")} error={errors.name} placeholder="Jane Doe" required />
                   <Input label="Email" type="email" value={form.email} onChange={update("email")} error={errors.email} placeholder="jane@example.com" required />
