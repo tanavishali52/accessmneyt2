@@ -68,7 +68,7 @@ option {
 }
 .dark option {
   color: #FAFAFA;            /* zinc-50 */
-  background-color: #1B1A2E; /* deep navy to match the aurora theme */
+  background-color: #252041; /* matches the elevated violet-slate surface */
 }
 
 /* ─── Aurora dark background (teal → deep blue → violet) ─────────────────────
@@ -76,12 +76,17 @@ option {
    continuous gradient. Page/section surfaces are transparent in dark mode so
    this shows through; navbar, footer, sidebar and sale banners stay solid. */
 .dark body {
-  background: linear-gradient(140deg, #03211F 0%, #071A33 38%, #16092F 70%, #2A0F56 100%);
+  /* Deep violet → indigo base (NOT black) with soft, brand-aligned glows.
+     One hue family keeps it cohesive and premium — never muddy. */
+  background:
+    radial-gradient(900px 520px at 12% -8%, rgba(139, 92, 246, 0.22), transparent 60%),
+    radial-gradient(800px 500px at 100% 102%, rgba(79, 70, 229, 0.18), transparent 55%),
+    linear-gradient(160deg, #1B1838 0%, #16132B 58%, #1C1740 100%);
   background-attachment: fixed;
 }
-/* Reusable Aurora surface for blocks that need their own gradient fill */
+/* Reusable dark surface for blocks that need their own fill */
 .bg-aurora {
-  background: linear-gradient(140deg, #03211F 0%, #071A33 38%, #16092F 70%, #2A0F56 100%);
+  background: #1B1838;
 }
 
 /* ─── Glass card surface ─────────────────────────────────────────────────────
@@ -93,10 +98,10 @@ option {
   background-color: #ffffff;
 }
 .dark .surface-glass {
-  background-color: rgba(15, 17, 34, 0.82);
+  background-color: rgba(42, 37, 68, 0.72); /* elevated violet-slate above the base */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-color: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.09);
 }
 
 /* ─── Starfield (dark only) ──────────────────────────────────────────────────
