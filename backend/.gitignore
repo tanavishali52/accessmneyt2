@@ -37,6 +37,8 @@ coverage/
 .DS_Store
 Thumbs.db
 
+.upload/
+
 # Caches
 .npm
 .eslintcache
