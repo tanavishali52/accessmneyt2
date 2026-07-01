@@ -56,7 +56,7 @@ body {
 
 /* ─── Selection ──────────────────────────────────────────────────────────── */
 ::selection        { background: #EDE9FE; color: #09090B; }
-.dark ::selection  { background: #2E1065; color: #FAFAFA; }
+.dark ::selection  { background: #27272A; color: #FAFAFA; }
 
 /* ─── Native <select> dropdown options ───────────────────────────────────────
    The open options list is OS-rendered and ignores the control's Tailwind
@@ -68,25 +68,24 @@ option {
 }
 .dark option {
   color: #FAFAFA;            /* zinc-50 */
-  background-color: #252041; /* matches the elevated violet-slate surface */
+  background-color: #18181B; /* matches the elevated slate surface */
 }
 
-/* ─── Aurora dark background (teal → deep blue → violet) ─────────────────────
+/* ─── Charcoal Slate dark background ────────────────────────────────────────
    Painted once on the body and held fixed, so the whole app shares a single
    continuous gradient. Page/section surfaces are transparent in dark mode so
    this shows through; navbar, footer, sidebar and sale banners stay solid. */
 .dark body {
-  /* Deep violet → indigo base (NOT black) with soft, brand-aligned glows.
-     One hue family keeps it cohesive and premium — never muddy. */
+  /* Ultra dark neutral blue-gray base with faint blue-grey glows. */
   background:
-    radial-gradient(900px 520px at 12% -8%, rgba(139, 92, 246, 0.22), transparent 60%),
-    radial-gradient(800px 500px at 100% 102%, rgba(79, 70, 229, 0.18), transparent 55%),
-    linear-gradient(160deg, #1B1838 0%, #16132B 58%, #1C1740 100%);
+    radial-gradient(900px 520px at 12% -8%,  rgba(39, 39, 42, 0.15), transparent 60%),
+    radial-gradient(800px 500px at 100% 102%, rgba(63, 63, 70, 0.12), transparent 55%),
+    linear-gradient(160deg, #0E0E16 0%, #13131F 58%, #0B0B14 100%);
   background-attachment: fixed;
 }
 /* Reusable dark surface for blocks that need their own fill */
 .bg-aurora {
-  background: #1B1838;
+  background: #0E0E16;
 }
 
 /* ─── Glass card surface ─────────────────────────────────────────────────────
@@ -98,7 +97,7 @@ option {
   background-color: #ffffff;
 }
 .dark .surface-glass {
-  background-color: rgba(42, 37, 68, 0.72); /* elevated violet-slate above the base */
+  background-color: rgba(24, 24, 27, 0.75); /* elevated slate above the base */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-color: rgba(255, 255, 255, 0.09);
@@ -115,6 +114,7 @@ option {
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  display: none; /* Temporarily hidden */
 }
 /* Layer 1 — small, dense, faster drift */
 .dark body::before {
